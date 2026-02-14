@@ -68,6 +68,8 @@ def generate_hull(segments=5, scale=1.0, complexity=1.0, symmetry=True, style='M
         apply_aurelian_style(hull, scale)
     elif style == 'KELDARI':
         apply_keldari_style(hull, scale)
+    elif style == 'NMS':
+        apply_nms_style(hull, scale)
     else:
         # Mixed style
         apply_mixed_style(hull, scale)
@@ -165,6 +167,25 @@ def apply_keldari_style(hull, scale):
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.bevel(offset=0.15 * scale, segments=1)
     bpy.ops.object.mode_set(mode='OBJECT')
+
+
+def apply_nms_style(hull, scale):
+    """Apply No Man's Sky style - colorful, varied, mix of smooth and angular.
+
+    NMS ships combine rounded organic surfaces with sharp mechanical details.
+    The hull gets a moderate cast towards a sphere for that rounded look plus a
+    light bevel to keep panel edges visible.
+    """
+    bpy.context.view_layer.objects.active = hull
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.subdivide(number_cuts=1)
+    bpy.ops.mesh.bevel(offset=0.06 * scale, segments=2)
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    # Rounded cast for organic NMS silhouette
+    cast_mod = hull.modifiers.new(name="NMS_Cast", type='CAST')
+    cast_mod.factor = 0.2
+    cast_mod.cast_type = 'SPHERE'
 
 
 def generate_cockpit(scale=1.0, position=(0, 0, 0), ship_class='FIGHTER', style='MIXED'):
