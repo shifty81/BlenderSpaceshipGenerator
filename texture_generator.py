@@ -304,7 +304,7 @@ def apply_textures_to_ship(ship_object, style='MIXED', seed=0,
             else:
                 obj.data.materials.append(engine_mat)
         elif any(k in name_lower for k in ('weapon', 'hardpoint', 'cockpit',
-                                            'wing')):
+                                            'wing', 'turret')):
             if obj.data.materials:
                 obj.data.materials[0] = accent_mat
             else:

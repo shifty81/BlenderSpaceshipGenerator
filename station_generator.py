@@ -108,7 +108,14 @@ FACTION_STATION_STYLES = {
 }
 
 
-def generate_station(station_type='INDUSTRIAL', faction='SOLARI', seed=1):
+def _prefixed_name(prefix, name):
+    """Return name with project prefix applied if prefix is non-empty."""
+    if prefix:
+        return f"{prefix}_{name}"
+    return name
+
+
+def generate_station(station_type='INDUSTRIAL', faction='SOLARI', seed=1, naming_prefix=''):
     """
     Generate a complete space station.
 
@@ -116,6 +123,7 @@ def generate_station(station_type='INDUSTRIAL', faction='SOLARI', seed=1):
         station_type: Type of station to generate
         faction: Faction style (SOLARI, VEYREN, AURELIAN, KELDARI)
         seed: Random seed for variation
+        naming_prefix: Project naming prefix
 
     Returns:
         The root object of the station
@@ -127,13 +135,13 @@ def generate_station(station_type='INDUSTRIAL', faction='SOLARI', seed=1):
     scale = config['base_scale']
 
     # Create collection
-    collection_name = f"Station_{station_type}_{faction}_{seed}"
+    collection_name = _prefixed_name(naming_prefix, f"Station_{station_type}_{faction}_{seed}")
     collection = bpy.data.collections.new(collection_name)
     bpy.context.scene.collection.children.link(collection)
 
     # Generate central hub
     hub = _generate_hub(scale, style)
-    hub.name = f"Station_Hub"
+    hub.name = _prefixed_name(naming_prefix, "Station_Hub")
     collection.objects.link(hub)
 
     # Generate radiating sections

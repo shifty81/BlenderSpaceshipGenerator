@@ -214,6 +214,20 @@ class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
         max=1.0
     )
 
+    naming_prefix: StringProperty(
+        name="Naming Prefix",
+        description="Project naming prefix applied to all generated elements (e.g. 'EVEOFFLINE')",
+        default=""
+    )
+
+    turret_hardpoints: IntProperty(
+        name="Turret Hardpoints",
+        description="Number of turret hardpoints (visual turret fittings with base, ring and barrel)",
+        default=0,
+        min=0,
+        max=10
+    )
+
 
 class SPACESHIP_OT_generate(bpy.types.Operator):
     """Generate a procedural spaceship"""
@@ -232,7 +246,9 @@ class SPACESHIP_OT_generate(bpy.types.Operator):
             module_slots=props.module_slots,
             hull_complexity=props.hull_complexity,
             symmetry=props.symmetry,
-            style=props.style
+            style=props.style,
+            naming_prefix=props.naming_prefix,
+            turret_hardpoints=props.turret_hardpoints,
         )
 
         # Apply procedural textures if requested
@@ -386,6 +402,11 @@ class SPACESHIP_PT_main_panel(bpy.types.Panel):
         layout.prop(props, "module_slots")
         layout.prop(props, "hull_complexity")
         layout.prop(props, "symmetry")
+
+        layout.separator()
+        layout.label(text="Naming & Hardpoints:")
+        layout.prop(props, "naming_prefix")
+        layout.prop(props, "turret_hardpoints")
 
         layout.separator()
         layout.label(text="Texture Options:")

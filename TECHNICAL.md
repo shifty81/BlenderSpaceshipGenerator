@@ -38,6 +38,8 @@ BlenderSpaceshipGenerator/
 - `hull_complexity`: Float for geometry detail
 - `symmetry`: Boolean for symmetric design
 - `style`: Enum for design inspiration
+- `naming_prefix`: String project naming prefix applied to all elements
+- `turret_hardpoints`: Integer number of turret hardpoints (0-10)
 
 ### `ship_generator.py` - Generation Orchestration
 
@@ -46,6 +48,7 @@ BlenderSpaceshipGenerator/
 **Key Components**:
 - `SHIP_CONFIGS`: Dictionary mapping ship classes to parameters
 - `generate_spaceship()`: Main generation function
+- `_prefixed_name()`: Applies optional naming prefix to all elements
 
 **Ship Configuration Structure**:
 ```python
@@ -54,6 +57,7 @@ BlenderSpaceshipGenerator/
     'hull_segments': int,     # Hull subdivision count
     'engines': int,           # Number of engine units
     'weapons': int,           # Number of weapon hardpoints
+    'turret_hardpoints': int, # Number of turret hardpoints (max 10)
     'wings': bool,            # Whether to add wings
     'crew_capacity': int,     # Number of crew members
 }
@@ -67,9 +71,10 @@ BlenderSpaceshipGenerator/
 5. Generate engines
 6. Generate wings (if applicable)
 7. Generate weapon hardpoints
-8. Generate modules
-9. Generate interior (if enabled)
-10. Parent all objects to hull
+8. Generate turret hardpoints (with visual turret geometry)
+9. Generate modules
+10. Generate interior (if enabled)
+11. Parent all objects to hull
 
 ### `ship_parts.py` - Component Generation
 
@@ -103,6 +108,17 @@ BlenderSpaceshipGenerator/
 - Creates weapon mount points
 - Distributed along ship hull
 - Can be symmetric or not
+
+**`generate_turret_hardpoints()`**:
+- Creates visual turret fittings (base cylinder + rotation ring + barrel)
+- Ships may have up to 10 turret hardpoints
+- Each turret carries custom properties for engine mapping:
+  - `turret_index`: 1-based position index
+  - `turret_type`: weapon type (e.g. `"projectile"`)
+  - `tracking_speed`: rotation speed in degrees/sec
+  - `rotation_limits`: `"yaw:360,pitch:90"` string
+  - `hardpoint_size`: visual size of the turret
+- Symmetrically placed along the dorsal (top) surface
 
 **Style Functions**:
 - `apply_x4_style()`: Angular, beveled edges
@@ -239,23 +255,30 @@ Scene Collection
 
 ## Object Hierarchy
 
+When a naming prefix is set (e.g. `EVEOFFLINE`), every generated element
+name is prepended with `EVEOFFLINE_`.  Without a prefix the names remain
+unchanged.
+
 ```
-Spaceship_CLASS_SEED (Collection)
-├─ Hull (Parent Object)
-│   ├─ Cockpit
-│   ├─ Engine_L1
-│   ├─ Engine_R1
-│   ├─ Wing_Left
-│   ├─ Wing_Right
-│   ├─ Weapon_Hardpoint_1
-│   ├─ Weapon_Hardpoint_2
+[PREFIX_]Spaceship_CLASS_SEED (Collection)
+├─ [PREFIX_]Hull (Parent Object)
+│   ├─ [PREFIX_]Cockpit
+│   ├─ [PREFIX_]Engine_L1
+│   ├─ [PREFIX_]Engine_R1
+│   ├─ [PREFIX_]Wing_Left
+│   ├─ [PREFIX_]Wing_Right
+│   ├─ [PREFIX_]Weapon_Hardpoint_1
+│   ├─ [PREFIX_]Weapon_Hardpoint_2
+│   ├─ [PREFIX_]Turret_Hardpoint_1  (custom props: turret_index, turret_type, tracking_speed, rotation_limits)
+│   │   ├─ [PREFIX_]Turret_Ring_1
+│   │   └─ [PREFIX_]Turret_Barrel_1
 │   ├─ Module_1
 │   │   ├─ Connector
 │   │   └─ Type-specific parts
 │   └─ Interior Objects
-│       ├─ Bridge_Floor
-│       ├─ Corridor_Floor
-│       ├─ Quarters_Floor
+│       ├─ [PREFIX_]Bridge_Floor
+│       ├─ [PREFIX_]Corridor_Floor
+│       ├─ [PREFIX_]Quarters_Floor
 │       └─ ...
 ```
 

@@ -87,6 +87,7 @@ def parse_ship_config(ship_data):
         'ship_name': ship_data.get('name', ''),
         'weapons_override': total_weapons,
         'engines_override': engines,
+        'turret_hardpoints': min(turrets, 10),
     }
 
 
