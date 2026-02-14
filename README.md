@@ -2,18 +2,37 @@
 
 A comprehensive Blender addon for procedurally generating spaceships with modular parts and interiors. Inspired by games like X4 Foundations, Elite Dangerous, and Eve Online.
 
+Built as the ship generator for the [EVEOFFLINE](https://github.com/shifty81/EVEOFFLINE) project — a PVE space simulator powered by the custom Atlas Engine and Atlas UI.
+
+## EVEOFFLINE / Atlas Integration
+
+This addon integrates directly with the EVEOFFLINE project:
+
+- **Import ships from EVEOFFLINE JSON** — reads `data/ships/*.json` and generates matching geometry using each ship's faction, class, seed, and hardpoint data.
+- **Export OBJ for Atlas Engine** — one-click export with correct axis orientation for the Atlas rendering pipeline.
+- **Four faction styles** — Solari (elegant), Veyren (angular), Aurelian (organic), Keldari (rugged) map directly to EVEOFFLINE's four factions.
+- **All ship classes** — Frigates through Titans, plus Industrials, Mining Barges, and Exhumers.
+
+**→ [Full EVEOFFLINE Integration Guide](EVEOFFLINE_GUIDE.md)** — start-to-finish instructions for generating and exporting ships into the Atlas engine.
+
 ## Features
 
-- **Multiple Ship Classes**: Generate ships from small shuttles to massive capital ships
+- **Multiple Ship Classes**: Generate ships from small shuttles to massive titans
   - Shuttle
   - Fighter
   - Corvette
   - Frigate
   - Destroyer
   - Cruiser
+  - Battlecruiser
   - Battleship
   - Carrier
+  - Dreadnought
   - Capital Ship
+  - Titan
+  - Industrial
+  - Mining Barge
+  - Exhumer
 
 - **Modular Ship Parts**:
   - Hull with configurable geometry and complexity
@@ -45,6 +64,11 @@ A comprehensive Blender addon for procedurally generating spaceships with modula
   - Elite Dangerous (Sleek, aerodynamic)
   - Eve Online (Organic, flowing)
   - Mixed (Combination of all styles)
+  - **EVEOFFLINE Factions**:
+    - Solari (Golden, elegant — armor tanking)
+    - Veyren (Angular, utilitarian — shield tanking)
+    - Aurelian (Sleek, organic — drones)
+    - Keldari (Rugged, industrial — missiles)
 
 ## Installation
 
@@ -78,12 +102,20 @@ A comprehensive Blender addon for procedurally generating spaceships with modula
 ### Medium Vessels
 - **Frigate**: Multi-role ship, 10 crew, interior corridors
 - **Destroyer**: Heavy combat focus, 25 crew, full interior
+- **Industrial**: Cargo hauler, 5 crew, large hold
+- **Mining Barge**: Mining vessel, 3 crew
+- **Exhumer**: Advanced mining vessel, 4 crew
 
 ### Large Vessels
 - **Cruiser**: Large multi-role, 50 crew, extensive interior
+- **Battlecruiser**: Heavy attack cruiser, 75 crew
 - **Battleship**: Heavy capital ship, 100 crew, many weapon hardpoints
 - **Carrier**: Fleet carrier, 200 crew, hangar capacity
-- **Capital**: Largest class, 500 crew, maximum module slots
+- **Capital**: Large capital ship, 500 crew, maximum module slots
+
+### Supercapital Vessels
+- **Dreadnought**: Siege capital, 400 crew, devastating firepower
+- **Titan**: Supercapital flagship, 1000 crew, doomsday weapons
 
 ## Progressive Module System
 
