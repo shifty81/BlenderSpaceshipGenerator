@@ -33,6 +33,7 @@ def test_addon_structure():
         'atlas_exporter.py',
         'station_generator.py',
         'asteroid_generator.py',
+        'texture_generator.py',
     ]
     
     all_exist = True
@@ -61,6 +62,7 @@ def test_file_syntax():
         'atlas_exporter.py',
         'station_generator.py',
         'asteroid_generator.py',
+        'texture_generator.py',
     ]
     
     all_valid = True
@@ -142,6 +144,7 @@ def test_register_functions():
         'atlas_exporter.py',
         'station_generator.py',
         'asteroid_generator.py',
+        'texture_generator.py',
     ]
     
     all_valid = True

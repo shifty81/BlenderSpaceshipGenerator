@@ -30,6 +30,7 @@ from . import module_system
 from . import atlas_exporter
 from . import station_generator
 from . import asteroid_generator
+from . import texture_generator
 
 
 class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
@@ -54,6 +55,9 @@ class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
             ('INDUSTRIAL', "Industrial", "Cargo hauler"),
             ('MINING_BARGE', "Mining Barge", "Mining vessel"),
             ('EXHUMER', "Exhumer", "Advanced mining vessel"),
+            ('EXPLORER', "Explorer", "NMS-style long range exploration ship"),
+            ('HAULER', "Hauler", "NMS-style heavy cargo transport"),
+            ('EXOTIC', "Exotic", "NMS-style rare experimental ship"),
         ],
         default='FIGHTER'
     )
@@ -105,6 +109,7 @@ class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
             ('VEYREN', "Veyren", "EVEOFFLINE Veyren faction - angular, utilitarian"),
             ('AURELIAN', "Aurelian", "EVEOFFLINE Aurelian faction - sleek, organic"),
             ('KELDARI', "Keldari", "EVEOFFLINE Keldari faction - rugged, industrial"),
+            ('NMS', "No Man's Sky", "No Man's Sky style - colorful, varied, organic"),
         ],
         default='MIXED'
     )
@@ -195,6 +200,20 @@ class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
         max=200
     )
 
+    generate_textures: BoolProperty(
+        name="Generate Textures",
+        description="Apply procedural PBR textures to the generated ship",
+        default=True
+    )
+
+    weathering: FloatProperty(
+        name="Weathering",
+        description="Amount of surface weathering, dirt, and wear",
+        default=0.0,
+        min=0.0,
+        max=1.0
+    )
+
 
 class SPACESHIP_OT_generate(bpy.types.Operator):
     """Generate a procedural spaceship"""
@@ -206,7 +225,7 @@ class SPACESHIP_OT_generate(bpy.types.Operator):
         props = context.scene.spaceship_props
         
         # Generate the spaceship
-        ship_generator.generate_spaceship(
+        hull = ship_generator.generate_spaceship(
             ship_class=props.ship_class,
             seed=props.seed,
             generate_interior=props.generate_interior,
@@ -215,7 +234,16 @@ class SPACESHIP_OT_generate(bpy.types.Operator):
             symmetry=props.symmetry,
             style=props.style
         )
-        
+
+        # Apply procedural textures if requested
+        if props.generate_textures:
+            texture_generator.apply_textures_to_ship(
+                hull,
+                style=props.style,
+                seed=props.seed,
+                weathering=props.weathering,
+            )
+
         self.report({'INFO'}, f"Generated {props.ship_class} class spaceship")
         return {'FINISHED'}
 
@@ -358,6 +386,12 @@ class SPACESHIP_PT_main_panel(bpy.types.Panel):
         layout.prop(props, "module_slots")
         layout.prop(props, "hull_complexity")
         layout.prop(props, "symmetry")
+
+        layout.separator()
+        layout.label(text="Texture Options:")
+        layout.prop(props, "generate_textures")
+        if props.generate_textures:
+            layout.prop(props, "weathering")
         
         layout.separator()
         layout.operator("mesh.generate_spaceship", icon='MESH_CUBE')
@@ -411,10 +445,12 @@ def register():
     atlas_exporter.register()
     station_generator.register()
     asteroid_generator.register()
+    texture_generator.register()
 
 
 def unregister():
     # Unregister submodules
+    texture_generator.unregister()
     asteroid_generator.unregister()
     station_generator.unregister()
     atlas_exporter.unregister()

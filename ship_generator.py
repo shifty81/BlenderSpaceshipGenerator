@@ -132,6 +132,30 @@ SHIP_CONFIGS = {
         'wings': False,
         'crew_capacity': 4,
     },
+    'EXPLORER': {
+        'scale': 2.0,
+        'hull_segments': 5,
+        'engines': 2,
+        'weapons': 1,
+        'wings': True,
+        'crew_capacity': 1,
+    },
+    'HAULER': {
+        'scale': 5.5,
+        'hull_segments': 6,
+        'engines': 4,
+        'weapons': 0,
+        'wings': False,
+        'crew_capacity': 2,
+    },
+    'EXOTIC': {
+        'scale': 2.5,
+        'hull_segments': 7,
+        'engines': 2,
+        'weapons': 2,
+        'wings': True,
+        'crew_capacity': 1,
+    },
 }
 
 
