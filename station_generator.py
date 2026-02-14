@@ -2,10 +2,10 @@
 Station generation module
 Generates procedural space stations matching EVEOFFLINE station types and faction styles.
 
-Station types: Industrial, Military, Commercial, Research, University, Mining
+Station types: Industrial, Military, Commercial, Research, Mining
+Upwell structures: Astrahus, Fortizar, Keepstar
 Faction styles: Solari (cathedral), Veyren (industrial blocks), Aurelian (organic domes),
                 Keldari (rusted patchwork)
-Upwell structures: Astrahus, Fortizar, Keepstar, Raitaru, Azbel, Sotiyo, Athanor, Tatara
 
 EVEOFFLINE project: https://github.com/shifty81/EVEOFFLINE
 """

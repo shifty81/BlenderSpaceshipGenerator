@@ -15,10 +15,10 @@ Complete start-to-finish guide for using the Blender Spaceship Generator with th
 6. [Place the Models in EVEOFFLINE](#place-the-models-in-eveoffline)
 7. [Generate Stations](#generate-stations)
 8. [Generate Asteroid Belts](#generate-asteroid-belts)
-7. [Test in Engine](#test-in-engine)
-8. [Batch Generation Script](#batch-generation-script)
-9. [Faction Style Reference](#faction-style-reference)
-10. [Troubleshooting](#troubleshooting)
+9. [Test in Engine](#test-in-engine)
+10. [Batch Generation Script](#batch-generation-script)
+11. [Faction Style Reference](#faction-style-reference)
+12. [Troubleshooting](#troubleshooting)
 
 ---
 
