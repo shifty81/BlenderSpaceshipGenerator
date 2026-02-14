@@ -196,6 +196,118 @@ def test_documentation():
     return all_exist
 
 
+def test_turret_hardpoint_configs():
+    """Test that all ship configs include turret_hardpoints and respect max 10"""
+    print("\nTesting turret hardpoint configurations...")
+
+    addon_path = os.path.dirname(os.path.abspath(__file__))
+    sg_path = os.path.join(addon_path, 'ship_generator.py')
+
+    with open(sg_path, 'r') as f:
+        content = f.read()
+
+    tree = ast.parse(content)
+    ship_configs = None
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id == 'SHIP_CONFIGS':
+                    ship_configs = node.value
+                    break
+
+    if ship_configs is None:
+        print("✗ SHIP_CONFIGS not found in ship_generator.py")
+        return False
+
+    if not isinstance(ship_configs, ast.Dict):
+        print("✗ SHIP_CONFIGS is not a dictionary")
+        return False
+
+    all_valid = True
+    for key_node, value_node in zip(ship_configs.keys, ship_configs.values):
+        class_name = key_node.value if isinstance(key_node, ast.Constant) else '?'
+        if not isinstance(value_node, ast.Dict):
+            continue
+        inner_keys = []
+        for k in value_node.keys:
+            if isinstance(k, ast.Constant):
+                inner_keys.append(k.value)
+        if 'turret_hardpoints' not in inner_keys:
+            print(f"✗ {class_name} missing 'turret_hardpoints' key")
+            all_valid = False
+        else:
+            # Find the value
+            idx = inner_keys.index('turret_hardpoints')
+            val_node = value_node.values[idx]
+            if isinstance(val_node, ast.Constant) and isinstance(val_node.value, int):
+                if val_node.value > 10:
+                    print(f"✗ {class_name} turret_hardpoints={val_node.value} exceeds max 10")
+                    all_valid = False
+                else:
+                    print(f"✓ {class_name} turret_hardpoints={val_node.value}")
+            else:
+                print(f"✗ {class_name} turret_hardpoints is not an integer")
+                all_valid = False
+
+    return all_valid
+
+
+def test_naming_prefix_support():
+    """Test that key generation modules define _prefixed_name helper"""
+    print("\nTesting naming prefix support...")
+
+    addon_path = os.path.dirname(os.path.abspath(__file__))
+    files_needing_prefix = [
+        'ship_generator.py',
+        'ship_parts.py',
+        'interior_generator.py',
+        'module_system.py',
+    ]
+
+    all_valid = True
+    for filename in files_needing_prefix:
+        filepath = os.path.join(addon_path, filename)
+        with open(filepath, 'r') as f:
+            content = f.read()
+        if 'def _prefixed_name(' in content:
+            print(f"✓ {filename} has _prefixed_name helper")
+        else:
+            print(f"✗ {filename} missing _prefixed_name helper")
+            all_valid = False
+
+    return all_valid
+
+
+def test_turret_generation_function():
+    """Test that ship_parts.py defines generate_turret_hardpoints"""
+    print("\nTesting turret generation function...")
+
+    addon_path = os.path.dirname(os.path.abspath(__file__))
+    sp_path = os.path.join(addon_path, 'ship_parts.py')
+
+    with open(sp_path, 'r') as f:
+        content = f.read()
+
+    checks = {
+        'def generate_turret_hardpoints(': 'generate_turret_hardpoints function',
+        '"turret_index"': 'turret_index custom property',
+        '"turret_type"': 'turret_type custom property',
+        '"tracking_speed"': 'tracking_speed custom property',
+        '"rotation_limits"': 'rotation_limits custom property',
+    }
+
+    all_valid = True
+    for pattern, description in checks.items():
+        if pattern in content:
+            print(f"✓ {description} found")
+        else:
+            print(f"✗ {description} not found")
+            all_valid = False
+
+    return all_valid
+
+
 def run_tests():
     """Run all validation tests"""
     print("=" * 60)
@@ -208,6 +320,9 @@ def run_tests():
         ("bl_info Metadata", test_bl_info),
         ("Register Functions", test_register_functions),
         ("Documentation", test_documentation),
+        ("Turret Hardpoint Configs", test_turret_hardpoint_configs),
+        ("Naming Prefix Support", test_naming_prefix_support),
+        ("Turret Generation Function", test_turret_generation_function),
     ]
     
     results = []

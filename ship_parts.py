@@ -9,6 +9,10 @@ import random
 import math
 
 
+# Maximum number of turret hardpoints any ship may have
+MAX_TURRET_HARDPOINTS = 10
+
+
 def _prefixed_name(prefix, name):
     """Return name with project prefix applied if prefix is non-empty."""
     if prefix:
@@ -409,7 +413,7 @@ def generate_turret_hardpoints(count=2, scale=1.0, symmetry=True, naming_prefix=
     Returns:
         List of turret hardpoint root objects
     """
-    count = min(count, 10)
+    count = min(count, MAX_TURRET_HARDPOINTS)
     turrets = []
     turret_size = scale * 0.12
 

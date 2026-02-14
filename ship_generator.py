@@ -10,6 +10,10 @@ from . import interior_generator
 from . import module_system
 
 
+# Maximum number of turret hardpoints any ship may have
+MAX_TURRET_HARDPOINTS = 10
+
+
 # Ship class configurations
 SHIP_CONFIGS = {
     'SHUTTLE': {
@@ -268,7 +272,7 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
     
     # Generate turret hardpoints
     turret_count = turret_hardpoints if turret_hardpoints > 0 else config.get('turret_hardpoints', 0)
-    turret_count = min(turret_count, 10)
+    turret_count = min(turret_count, MAX_TURRET_HARDPOINTS)
     if turret_count > 0:
         turrets = ship_parts.generate_turret_hardpoints(
             count=turret_count,
