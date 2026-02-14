@@ -1,12 +1,19 @@
 """
 Ship parts generation module
-Generates individual ship components (hull, cockpit, engines, wings, weapons)
+Generates individual ship components (hull, cockpit, engines, wings, weapons, turrets)
 """
 
 import bpy
 import bmesh
 import random
 import math
+
+
+def _prefixed_name(prefix, name):
+    """Return name with project prefix applied if prefix is non-empty."""
+    if prefix:
+        return f"{prefix}_{name}"
+    return name
 
 
 def create_mesh_object(name, verts, edges, faces):
@@ -19,7 +26,8 @@ def create_mesh_object(name, verts, edges, faces):
     return obj
 
 
-def generate_hull(segments=5, scale=1.0, complexity=1.0, symmetry=True, style='MIXED'):
+def generate_hull(segments=5, scale=1.0, complexity=1.0, symmetry=True, style='MIXED',
+                  naming_prefix=''):
     """
     Generate the main hull of the spaceship
     
@@ -29,11 +37,12 @@ def generate_hull(segments=5, scale=1.0, complexity=1.0, symmetry=True, style='M
         complexity: Geometry complexity (0.1-3.0)
         symmetry: Use symmetrical design
         style: Design style
+        naming_prefix: Project naming prefix
     """
     # Create base hull mesh
     bpy.ops.mesh.primitive_cube_add(size=1, location=(0, 0, 0))
     hull = bpy.context.active_object
-    hull.name = "Hull"
+    hull.name = _prefixed_name(naming_prefix, "Hull")
     
     # Scale to ship size
     hull.scale = (scale * 0.5, scale, scale * 0.3)
@@ -188,7 +197,8 @@ def apply_nms_style(hull, scale):
     cast_mod.cast_type = 'SPHERE'
 
 
-def generate_cockpit(scale=1.0, position=(0, 0, 0), ship_class='FIGHTER', style='MIXED'):
+def generate_cockpit(scale=1.0, position=(0, 0, 0), ship_class='FIGHTER', style='MIXED',
+                     naming_prefix=''):
     """
     Generate cockpit/bridge for the ship
     
@@ -197,11 +207,12 @@ def generate_cockpit(scale=1.0, position=(0, 0, 0), ship_class='FIGHTER', style=
         position: Position relative to hull
         ship_class: Type of ship
         style: Design style
+        naming_prefix: Project naming prefix
     """
     # Create cockpit as a modified cube
     bpy.ops.mesh.primitive_cube_add(size=scale * 0.3, location=position)
     cockpit = bpy.context.active_object
-    cockpit.name = "Cockpit"
+    cockpit.name = _prefixed_name(naming_prefix, "Cockpit")
     
     # Scale to appropriate proportions
     cockpit.scale = (0.8, 1.2, 0.6)
@@ -219,7 +230,7 @@ def generate_cockpit(scale=1.0, position=(0, 0, 0), ship_class='FIGHTER', style=
     return cockpit
 
 
-def generate_engines(count=2, scale=1.0, symmetry=True, style='MIXED'):
+def generate_engines(count=2, scale=1.0, symmetry=True, style='MIXED', naming_prefix=''):
     """
     Generate engine units
     
@@ -228,6 +239,7 @@ def generate_engines(count=2, scale=1.0, symmetry=True, style='MIXED'):
         scale: Ship scale factor
         symmetry: Use symmetrical placement
         style: Design style
+        naming_prefix: Project naming prefix
     """
     engines = []
     engine_size = scale * 0.2
@@ -248,7 +260,7 @@ def generate_engines(count=2, scale=1.0, symmetry=True, style='MIXED'):
                 location=(offset, rear_position, 0)
             )
             left_engine = bpy.context.active_object
-            left_engine.name = f"Engine_L{i+1}"
+            left_engine.name = _prefixed_name(naming_prefix, f"Engine_L{i+1}")
             left_engine.rotation_euler = (math.radians(90), 0, 0)
             engines.append(left_engine)
             
@@ -259,7 +271,7 @@ def generate_engines(count=2, scale=1.0, symmetry=True, style='MIXED'):
                 location=(-offset, rear_position, 0)
             )
             right_engine = bpy.context.active_object
-            right_engine.name = f"Engine_R{i+1}"
+            right_engine.name = _prefixed_name(naming_prefix, f"Engine_R{i+1}")
             right_engine.rotation_euler = (math.radians(90), 0, 0)
             engines.append(right_engine)
     else:
@@ -272,7 +284,7 @@ def generate_engines(count=2, scale=1.0, symmetry=True, style='MIXED'):
                 location=(x_offset, rear_position, 0)
             )
             engine = bpy.context.active_object
-            engine.name = f"Engine_{i+1}"
+            engine.name = _prefixed_name(naming_prefix, f"Engine_{i+1}")
             engine.rotation_euler = (math.radians(90), 0, 0)
             engines.append(engine)
     
@@ -295,7 +307,7 @@ def generate_engines(count=2, scale=1.0, symmetry=True, style='MIXED'):
     return engines
 
 
-def generate_wings(scale=1.0, symmetry=True, style='MIXED'):
+def generate_wings(scale=1.0, symmetry=True, style='MIXED', naming_prefix=''):
     """
     Generate wing structures
     
@@ -303,6 +315,7 @@ def generate_wings(scale=1.0, symmetry=True, style='MIXED'):
         scale: Ship scale factor
         symmetry: Use symmetrical design
         style: Design style
+        naming_prefix: Project naming prefix
     """
     wings = []
     wing_length = scale * 0.8
@@ -314,7 +327,7 @@ def generate_wings(scale=1.0, symmetry=True, style='MIXED'):
         location=(wing_length * 0.5, 0, 0)
     )
     left_wing = bpy.context.active_object
-    left_wing.name = "Wing_Left"
+    left_wing.name = _prefixed_name(naming_prefix, "Wing_Left")
     left_wing.scale = (wing_length, wing_width, wing_width * 0.3)
     bpy.ops.object.transform_apply(scale=True)
     wings.append(left_wing)
@@ -326,7 +339,7 @@ def generate_wings(scale=1.0, symmetry=True, style='MIXED'):
             location=(-wing_length * 0.5, 0, 0)
         )
         right_wing = bpy.context.active_object
-        right_wing.name = "Wing_Right"
+        right_wing.name = _prefixed_name(naming_prefix, "Wing_Right")
         right_wing.scale = (wing_length, wing_width, wing_width * 0.3)
         bpy.ops.object.transform_apply(scale=True)
         wings.append(right_wing)
@@ -334,7 +347,7 @@ def generate_wings(scale=1.0, symmetry=True, style='MIXED'):
     return wings
 
 
-def generate_weapon_hardpoints(count=2, scale=1.0, symmetry=True):
+def generate_weapon_hardpoints(count=2, scale=1.0, symmetry=True, naming_prefix=''):
     """
     Generate weapon hardpoint markers
     
@@ -342,6 +355,7 @@ def generate_weapon_hardpoints(count=2, scale=1.0, symmetry=True):
         count: Number of weapon hardpoints
         scale: Ship scale factor
         symmetry: Use symmetrical placement
+        naming_prefix: Project naming prefix
     """
     hardpoints = []
     hardpoint_size = scale * 0.1
@@ -368,11 +382,110 @@ def generate_weapon_hardpoints(count=2, scale=1.0, symmetry=True):
             location=pos
         )
         hardpoint = bpy.context.active_object
-        hardpoint.name = f"Weapon_Hardpoint_{i+1}"
+        hardpoint.name = _prefixed_name(naming_prefix, f"Weapon_Hardpoint_{i+1}")
         hardpoint.rotation_euler = (math.radians(90), 0, 0)
         hardpoints.append(hardpoint)
     
     return hardpoints
+
+
+def generate_turret_hardpoints(count=2, scale=1.0, symmetry=True, naming_prefix=''):
+    """
+    Generate turret hardpoint fittings with visual turret geometry.
+
+    Each turret consists of a cylindrical base, a rotation ring (torus),
+    and a barrel.  Custom properties are added to each turret for engine
+    mapping: ``turret_index``, ``turret_type``, ``tracking_speed`` and
+    ``rotation_limits``.
+
+    Ships may have up to 10 turret hardpoints.
+
+    Args:
+        count: Number of turret hardpoints (max 10)
+        scale: Ship scale factor
+        symmetry: Use symmetrical placement
+        naming_prefix: Project naming prefix
+
+    Returns:
+        List of turret hardpoint root objects
+    """
+    count = min(count, 10)
+    turrets = []
+    turret_size = scale * 0.12
+
+    # Calculate positions along the dorsal (top) surface of the hull
+    positions = []
+    if symmetry and count % 2 == 0:
+        for i in range(count // 2):
+            y_pos = scale * 0.2 - (i * scale * 0.25)
+            x_offset = scale * 0.2 + (i * scale * 0.08)
+            positions.append((x_offset, y_pos, scale * 0.15))
+            positions.append((-x_offset, y_pos, scale * 0.15))
+    else:
+        for i in range(count):
+            y_pos = scale * 0.3 - (i * scale * 0.15)
+            x_pos = (i - count / 2) * scale * 0.15
+            positions.append((x_pos, y_pos, scale * 0.15))
+
+    for i, pos in enumerate(positions):
+        turret_name = _prefixed_name(naming_prefix, f"Turret_Hardpoint_{i+1}")
+
+        # --- Turret base (flat cylinder) ---
+        bpy.ops.mesh.primitive_cylinder_add(
+            radius=turret_size,
+            depth=turret_size * 0.4,
+            location=pos
+        )
+        base = bpy.context.active_object
+        base.name = turret_name
+
+        # --- Rotation ring (torus around the base) ---
+        ring_pos = (pos[0], pos[1], pos[2] + turret_size * 0.25)
+        bpy.ops.mesh.primitive_torus_add(
+            major_radius=turret_size * 0.8,
+            minor_radius=turret_size * 0.08,
+            location=ring_pos
+        )
+        ring = bpy.context.active_object
+        ring.name = _prefixed_name(naming_prefix, f"Turret_Ring_{i+1}")
+        ring.parent = base
+
+        # --- Barrel ---
+        barrel_pos = (pos[0], pos[1] + turret_size * 0.9, pos[2] + turret_size * 0.25)
+        bpy.ops.mesh.primitive_cylinder_add(
+            radius=turret_size * 0.1,
+            depth=turret_size * 1.6,
+            location=barrel_pos
+        )
+        barrel = bpy.context.active_object
+        barrel.name = _prefixed_name(naming_prefix, f"Turret_Barrel_{i+1}")
+        barrel.rotation_euler = (math.radians(90), 0, 0)
+        barrel.parent = base
+
+        # --- Engine mapping custom properties ---
+        base["turret_index"] = i + 1
+        base["turret_type"] = "projectile"
+        base["tracking_speed"] = 30.0
+        base["rotation_limits"] = "yaw:360,pitch:90"
+        base["hardpoint_size"] = turret_size
+
+        # Apply turret material
+        mat = bpy.data.materials.new(
+            name=_prefixed_name(naming_prefix, f"Turret_Mat_{i+1}"))
+        mat.use_nodes = True
+        nodes = mat.node_tree.nodes
+        bsdf = nodes.get('Principled BSDF')
+        if bsdf:
+            bsdf.inputs['Base Color'].default_value = (0.35, 0.35, 0.4, 1.0)
+            bsdf.inputs['Metallic'].default_value = 0.9
+            bsdf.inputs['Roughness'].default_value = 0.3
+        base.data.materials.append(mat)
+        ring.data.materials.append(mat)
+        barrel.data.materials.append(mat)
+
+        turrets.append(base)
+
+    return turrets
 
 
 def register():

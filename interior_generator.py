@@ -18,7 +18,14 @@ CORRIDOR_HEIGHT = 2.5
 ROOM_HEIGHT = 3.0
 
 
-def generate_interior(ship_class='FIGHTER', scale=1.0, crew_capacity=1):
+def _prefixed_name(prefix, name):
+    """Return name with project prefix applied if prefix is non-empty."""
+    if prefix:
+        return f"{prefix}_{name}"
+    return name
+
+
+def generate_interior(ship_class='FIGHTER', scale=1.0, crew_capacity=1, naming_prefix=''):
     """
     Generate complete interior for a ship
     
@@ -26,6 +33,7 @@ def generate_interior(ship_class='FIGHTER', scale=1.0, crew_capacity=1):
         ship_class: Type of ship
         scale: Ship scale factor
         crew_capacity: Number of crew members
+        naming_prefix: Project naming prefix
     
     Returns:
         List of interior objects
@@ -33,34 +41,35 @@ def generate_interior(ship_class='FIGHTER', scale=1.0, crew_capacity=1):
     interior_objects = []
     
     # Create interior collection
-    collection_name = f"Interior_{ship_class}"
+    collection_name = _prefixed_name(naming_prefix, f"Interior_{ship_class}")
     
     # Determine interior layout based on ship class
     if ship_class in ['SHUTTLE', 'FIGHTER']:
         # Small ships: Simple cockpit area
-        interior_objects.extend(generate_cockpit_interior(scale))
+        interior_objects.extend(generate_cockpit_interior(scale, naming_prefix=naming_prefix))
     elif ship_class in ['CORVETTE', 'FRIGATE']:
         # Medium ships: Cockpit + small crew area
-        interior_objects.extend(generate_cockpit_interior(scale))
-        interior_objects.extend(generate_corridor(scale, length=scale * 0.5))
-        interior_objects.extend(generate_crew_quarters(scale, bunks=crew_capacity))
+        interior_objects.extend(generate_cockpit_interior(scale, naming_prefix=naming_prefix))
+        interior_objects.extend(generate_corridor(scale, length=scale * 0.5, naming_prefix=naming_prefix))
+        interior_objects.extend(generate_crew_quarters(scale, bunks=crew_capacity, naming_prefix=naming_prefix))
     else:
         # Large ships: Full interior with multiple rooms
-        interior_objects.extend(generate_bridge(scale))
-        interior_objects.extend(generate_corridor_network(scale, crew_capacity))
-        interior_objects.extend(generate_crew_quarters(scale, bunks=crew_capacity))
-        interior_objects.extend(generate_cargo_bay(scale))
-        interior_objects.extend(generate_engine_room(scale))
+        interior_objects.extend(generate_bridge(scale, naming_prefix=naming_prefix))
+        interior_objects.extend(generate_corridor_network(scale, crew_capacity, naming_prefix=naming_prefix))
+        interior_objects.extend(generate_crew_quarters(scale, bunks=crew_capacity, naming_prefix=naming_prefix))
+        interior_objects.extend(generate_cargo_bay(scale, naming_prefix=naming_prefix))
+        interior_objects.extend(generate_engine_room(scale, naming_prefix=naming_prefix))
     
     return interior_objects
 
 
-def generate_cockpit_interior(scale=1.0):
+def generate_cockpit_interior(scale=1.0, naming_prefix=''):
     """
     Generate cockpit/pilot area interior
     
     Args:
         scale: Ship scale factor
+        naming_prefix: Project naming prefix
     """
     objects = []
     
@@ -70,7 +79,7 @@ def generate_cockpit_interior(scale=1.0):
         location=(0, scale * 0.7, -scale * 0.15)
     )
     floor = bpy.context.active_object
-    floor.name = "Cockpit_Floor"
+    floor.name = _prefixed_name(naming_prefix, "Cockpit_Floor")
     floor.scale = (scale * 0.4, scale * 0.3, 0.05)
     bpy.ops.object.transform_apply(scale=True)
     objects.append(floor)
@@ -81,7 +90,7 @@ def generate_cockpit_interior(scale=1.0):
         location=(0, scale * 0.65, -scale * 0.1)
     )
     seat = bpy.context.active_object
-    seat.name = "Pilot_Seat"
+    seat.name = _prefixed_name(naming_prefix, "Pilot_Seat")
     objects.append(seat)
     
     # Create control panel
@@ -90,7 +99,7 @@ def generate_cockpit_interior(scale=1.0):
         location=(0, scale * 0.8, -scale * 0.05)
     )
     panel = bpy.context.active_object
-    panel.name = "Control_Panel"
+    panel.name = _prefixed_name(naming_prefix, "Control_Panel")
     panel.scale = (scale * 0.3, 0.1, scale * 0.2)
     bpy.ops.object.transform_apply(scale=True)
     objects.append(panel)
@@ -98,12 +107,13 @@ def generate_cockpit_interior(scale=1.0):
     return objects
 
 
-def generate_bridge(scale=1.0):
+def generate_bridge(scale=1.0, naming_prefix=''):
     """
     Generate bridge for large ships
     
     Args:
         scale: Ship scale factor
+        naming_prefix: Project naming prefix
     """
     objects = []
     
@@ -113,7 +123,7 @@ def generate_bridge(scale=1.0):
         location=(0, scale * 0.7, -scale * 0.15)
     )
     floor = bpy.context.active_object
-    floor.name = "Bridge_Floor"
+    floor.name = _prefixed_name(naming_prefix, "Bridge_Floor")
     floor.scale = (scale * 0.6, scale * 0.4, 0.05)
     bpy.ops.object.transform_apply(scale=True)
     objects.append(floor)
@@ -127,7 +137,7 @@ def generate_bridge(scale=1.0):
         location=(0, scale * 0.9, -scale * 0.15 + wall_height / 2)
     )
     front_wall = bpy.context.active_object
-    front_wall.name = "Bridge_Wall_Front"
+    front_wall.name = _prefixed_name(naming_prefix, "Bridge_Wall_Front")
     front_wall.scale = (scale * 0.6, 0.1, wall_height)
     bpy.ops.object.transform_apply(scale=True)
     objects.append(front_wall)
@@ -138,7 +148,7 @@ def generate_bridge(scale=1.0):
         location=(0, scale * 0.7, -scale * 0.1)
     )
     command_chair = bpy.context.active_object
-    command_chair.name = "Command_Chair"
+    command_chair.name = _prefixed_name(naming_prefix, "Command_Chair")
     objects.append(command_chair)
     
     # Navigation console
@@ -147,7 +157,7 @@ def generate_bridge(scale=1.0):
         location=(scale * 0.2, scale * 0.75, -scale * 0.05)
     )
     nav_console = bpy.context.active_object
-    nav_console.name = "Nav_Console"
+    nav_console.name = _prefixed_name(naming_prefix, "Nav_Console")
     nav_console.scale = (0.4, 0.4, 0.6)
     bpy.ops.object.transform_apply(scale=True)
     objects.append(nav_console)
@@ -155,7 +165,7 @@ def generate_bridge(scale=1.0):
     return objects
 
 
-def generate_corridor(scale=1.0, length=5.0, start_pos=(0, 0, 0)):
+def generate_corridor(scale=1.0, length=5.0, start_pos=(0, 0, 0), naming_prefix=''):
     """
     Generate a corridor segment
     
@@ -163,6 +173,7 @@ def generate_corridor(scale=1.0, length=5.0, start_pos=(0, 0, 0)):
         scale: Ship scale factor
         length: Length of corridor
         start_pos: Starting position
+        naming_prefix: Project naming prefix
     """
     objects = []
     
@@ -172,7 +183,7 @@ def generate_corridor(scale=1.0, length=5.0, start_pos=(0, 0, 0)):
         location=(start_pos[0], start_pos[1] + length / 2, start_pos[2])
     )
     floor = bpy.context.active_object
-    floor.name = "Corridor_Floor"
+    floor.name = _prefixed_name(naming_prefix, "Corridor_Floor")
     floor.scale = (CORRIDOR_WIDTH, length, 0.05)
     bpy.ops.object.transform_apply(scale=True)
     objects.append(floor)
@@ -183,7 +194,7 @@ def generate_corridor(scale=1.0, length=5.0, start_pos=(0, 0, 0)):
         location=(start_pos[0], start_pos[1] + length / 2, start_pos[2] + CORRIDOR_HEIGHT)
     )
     ceiling = bpy.context.active_object
-    ceiling.name = "Corridor_Ceiling"
+    ceiling.name = _prefixed_name(naming_prefix, "Corridor_Ceiling")
     ceiling.scale = (CORRIDOR_WIDTH, length, 0.05)
     bpy.ops.object.transform_apply(scale=True)
     objects.append(ceiling)
@@ -195,7 +206,7 @@ def generate_corridor(scale=1.0, length=5.0, start_pos=(0, 0, 0)):
         location=(start_pos[0] - CORRIDOR_WIDTH / 2, start_pos[1] + length / 2, start_pos[2] + CORRIDOR_HEIGHT / 2)
     )
     left_wall = bpy.context.active_object
-    left_wall.name = "Corridor_Wall_Left"
+    left_wall.name = _prefixed_name(naming_prefix, "Corridor_Wall_Left")
     left_wall.scale = (0.1, length, CORRIDOR_HEIGHT)
     bpy.ops.object.transform_apply(scale=True)
     objects.append(left_wall)
@@ -206,7 +217,7 @@ def generate_corridor(scale=1.0, length=5.0, start_pos=(0, 0, 0)):
         location=(start_pos[0] + CORRIDOR_WIDTH / 2, start_pos[1] + length / 2, start_pos[2] + CORRIDOR_HEIGHT / 2)
     )
     right_wall = bpy.context.active_object
-    right_wall.name = "Corridor_Wall_Right"
+    right_wall.name = _prefixed_name(naming_prefix, "Corridor_Wall_Right")
     right_wall.scale = (0.1, length, CORRIDOR_HEIGHT)
     bpy.ops.object.transform_apply(scale=True)
     objects.append(right_wall)
@@ -214,37 +225,39 @@ def generate_corridor(scale=1.0, length=5.0, start_pos=(0, 0, 0)):
     return objects
 
 
-def generate_corridor_network(scale=1.0, crew_capacity=10):
+def generate_corridor_network(scale=1.0, crew_capacity=10, naming_prefix=''):
     """
     Generate network of corridors connecting ship areas
     
     Args:
         scale: Ship scale factor
         crew_capacity: Number of crew (affects corridor count)
+        naming_prefix: Project naming prefix
     """
     objects = []
     
     # Main corridor running along ship center
     main_length = scale * 0.6
-    objects.extend(generate_corridor(scale, main_length, (0, 0, -scale * 0.15)))
+    objects.extend(generate_corridor(scale, main_length, (0, 0, -scale * 0.15), naming_prefix=naming_prefix))
     
     # Add side corridors for larger ships
     if crew_capacity > 20:
         # Side corridors
         side_length = scale * 0.3
-        objects.extend(generate_corridor(scale, side_length, (CORRIDOR_WIDTH, scale * 0.2, -scale * 0.15)))
-        objects.extend(generate_corridor(scale, side_length, (-CORRIDOR_WIDTH, scale * 0.2, -scale * 0.15)))
+        objects.extend(generate_corridor(scale, side_length, (CORRIDOR_WIDTH, scale * 0.2, -scale * 0.15), naming_prefix=naming_prefix))
+        objects.extend(generate_corridor(scale, side_length, (-CORRIDOR_WIDTH, scale * 0.2, -scale * 0.15), naming_prefix=naming_prefix))
     
     return objects
 
 
-def generate_crew_quarters(scale=1.0, bunks=4):
+def generate_crew_quarters(scale=1.0, bunks=4, naming_prefix=''):
     """
     Generate crew quarters with bunks
     
     Args:
         scale: Ship scale factor
         bunks: Number of bunks to create
+        naming_prefix: Project naming prefix
     """
     objects = []
     
@@ -257,7 +270,7 @@ def generate_crew_quarters(scale=1.0, bunks=4):
         location=(scale * 0.3, -scale * 0.3, -scale * 0.15)
     )
     floor = bpy.context.active_object
-    floor.name = "Quarters_Floor"
+    floor.name = _prefixed_name(naming_prefix, "Quarters_Floor")
     floor.scale = (room_width, room_depth, 0.05)
     bpy.ops.object.transform_apply(scale=True)
     objects.append(floor)
@@ -271,7 +284,7 @@ def generate_crew_quarters(scale=1.0, bunks=4):
             location=(x_pos, -scale * 0.3 + room_depth / 2 - 0.5, -scale * 0.1)
         )
         bunk = bpy.context.active_object
-        bunk.name = f"Bunk_{i+1}"
+        bunk.name = _prefixed_name(naming_prefix, f"Bunk_{i+1}")
         bunk.scale = (0.8, 2.0, 0.3)
         bpy.ops.object.transform_apply(scale=True)
         objects.append(bunk)
@@ -279,12 +292,13 @@ def generate_crew_quarters(scale=1.0, bunks=4):
     return objects
 
 
-def generate_cargo_bay(scale=1.0):
+def generate_cargo_bay(scale=1.0, naming_prefix=''):
     """
     Generate cargo bay area
     
     Args:
         scale: Ship scale factor
+        naming_prefix: Project naming prefix
     """
     objects = []
     
@@ -298,7 +312,7 @@ def generate_cargo_bay(scale=1.0):
         location=(0, -scale * 0.5, -scale * 0.15)
     )
     floor = bpy.context.active_object
-    floor.name = "Cargo_Bay_Floor"
+    floor.name = _prefixed_name(naming_prefix, "Cargo_Bay_Floor")
     floor.scale = (bay_width, bay_depth, 0.1)
     bpy.ops.object.transform_apply(scale=True)
     objects.append(floor)
@@ -313,7 +327,7 @@ def generate_cargo_bay(scale=1.0):
                 location=(x_pos, y_pos, -scale * 0.1)
             )
             container = bpy.context.active_object
-            container.name = f"Cargo_Container_{i}_{j}"
+            container.name = _prefixed_name(naming_prefix, f"Cargo_Container_{i}_{j}")
             container.scale = (0.8, 0.8, 1.0)
             bpy.ops.object.transform_apply(scale=True)
             objects.append(container)
@@ -321,12 +335,13 @@ def generate_cargo_bay(scale=1.0):
     return objects
 
 
-def generate_engine_room(scale=1.0):
+def generate_engine_room(scale=1.0, naming_prefix=''):
     """
     Generate engine room with machinery
     
     Args:
         scale: Ship scale factor
+        naming_prefix: Project naming prefix
     """
     objects = []
     
@@ -339,7 +354,7 @@ def generate_engine_room(scale=1.0):
         location=(0, -scale * 0.8, -scale * 0.15)
     )
     floor = bpy.context.active_object
-    floor.name = "Engine_Room_Floor"
+    floor.name = _prefixed_name(naming_prefix, "Engine_Room_Floor")
     floor.scale = (room_width, room_depth, 0.05)
     bpy.ops.object.transform_apply(scale=True)
     objects.append(floor)
@@ -351,7 +366,7 @@ def generate_engine_room(scale=1.0):
         location=(0, -scale * 0.8, -scale * 0.15 + ROOM_HEIGHT / 2)
     )
     core = bpy.context.active_object
-    core.name = "Reactor_Core"
+    core.name = _prefixed_name(naming_prefix, "Reactor_Core")
     objects.append(core)
     
     # Add glowing material to core
@@ -368,20 +383,21 @@ def generate_engine_room(scale=1.0):
     return objects
 
 
-def generate_doorway(position=(0, 0, 0), rotation=(0, 0, 0)):
+def generate_doorway(position=(0, 0, 0), rotation=(0, 0, 0), naming_prefix=''):
     """
     Generate a doorway/access point
     
     Args:
         position: Doorway position
         rotation: Doorway rotation
+        naming_prefix: Project naming prefix
     """
     bpy.ops.mesh.primitive_cube_add(
         size=1,
         location=position
     )
     doorway = bpy.context.active_object
-    doorway.name = "Doorway"
+    doorway.name = _prefixed_name(naming_prefix, "Doorway")
     doorway.scale = (DOOR_WIDTH, 0.1, DOOR_HEIGHT)
     doorway.rotation_euler = rotation
     bpy.ops.object.transform_apply(scale=True, rotation=True)

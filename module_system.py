@@ -43,7 +43,14 @@ MODULE_TYPES = {
 }
 
 
-def generate_modules(count=2, scale=1.0, ship_class='FIGHTER'):
+def _prefixed_name(prefix, name):
+    """Return name with project prefix applied if prefix is non-empty."""
+    if prefix:
+        return f"{prefix}_{name}"
+    return name
+
+
+def generate_modules(count=2, scale=1.0, ship_class='FIGHTER', naming_prefix=''):
     """
     Generate module attachments for the ship
     
@@ -51,6 +58,7 @@ def generate_modules(count=2, scale=1.0, ship_class='FIGHTER'):
         count: Number of modules to generate
         scale: Ship scale factor
         ship_class: Type of ship (affects module types)
+        naming_prefix: Project naming prefix
     
     Returns:
         List of module objects
@@ -63,7 +71,7 @@ def generate_modules(count=2, scale=1.0, ship_class='FIGHTER'):
     # Generate modules
     for i in range(count):
         module_type = random.choice(available_types)
-        module = create_module(module_type, scale, i)
+        module = create_module(module_type, scale, i, naming_prefix=naming_prefix)
         modules.append(module)
     
     return modules
@@ -90,7 +98,7 @@ def get_available_modules(ship_class):
         return list(MODULE_TYPES.keys())
 
 
-def create_module(module_type, scale=1.0, index=0):
+def create_module(module_type, scale=1.0, index=0, naming_prefix=''):
     """
     Create a single module
     
@@ -98,12 +106,14 @@ def create_module(module_type, scale=1.0, index=0):
         module_type: Type of module to create
         scale: Ship scale factor
         index: Module index for positioning
+        naming_prefix: Project naming prefix
     
     Returns:
         Module object
     """
     config = MODULE_TYPES[module_type]
     module_scale = scale * config['scale_factor']
+    module_name = _prefixed_name(naming_prefix, config['name'])
     
     # Calculate position (distributed along ship)
     angle = (index / 4) * 2 * math.pi  # Distribute around ship
@@ -116,18 +126,18 @@ def create_module(module_type, scale=1.0, index=0):
     
     # Create module based on shape
     if config['shape'] == 'box':
-        module = create_box_module(position, module_scale, config['name'])
+        module = create_box_module(position, module_scale, module_name)
     elif config['shape'] == 'cylinder':
-        module = create_cylinder_module(position, module_scale, config['name'])
+        module = create_cylinder_module(position, module_scale, module_name)
     elif config['shape'] == 'sphere':
-        module = create_sphere_module(position, module_scale, config['name'])
+        module = create_sphere_module(position, module_scale, module_name)
     elif config['shape'] == 'cone':
-        module = create_cone_module(position, module_scale, config['name'])
+        module = create_cone_module(position, module_scale, module_name)
     else:
-        module = create_box_module(position, module_scale, config['name'])
+        module = create_box_module(position, module_scale, module_name)
     
     # Add module-specific details
-    add_module_details(module, module_type, module_scale)
+    add_module_details(module, module_type, module_scale, naming_prefix=naming_prefix)
     
     return module
 
@@ -180,7 +190,7 @@ def create_cone_module(position, scale, name):
     return module
 
 
-def add_module_details(module, module_type, scale):
+def add_module_details(module, module_type, scale, naming_prefix=''):
     """
     Add details to module based on type
     
@@ -188,6 +198,7 @@ def add_module_details(module, module_type, scale):
         module: Module object
         module_type: Type of module
         scale: Module scale
+        naming_prefix: Project naming prefix
     """
     # Add connection point indicator
     bpy.ops.mesh.primitive_cylinder_add(
@@ -196,25 +207,25 @@ def add_module_details(module, module_type, scale):
         location=module.location
     )
     connector = bpy.context.active_object
-    connector.name = f"{module.name}_Connector"
+    connector.name = _prefixed_name(naming_prefix, f"{module.name}_Connector")
     connector.parent = module
     
     # Add type-specific elements
     if module_type == 'WEAPON':
         # Add weapon barrel indicators
-        add_weapon_barrels(module, scale)
+        add_weapon_barrels(module, scale, naming_prefix=naming_prefix)
     elif module_type == 'SENSOR':
         # Add sensor dish
-        add_sensor_dish(module, scale)
+        add_sensor_dish(module, scale, naming_prefix=naming_prefix)
     elif module_type == 'SHIELD':
         # Add shield emitter effect
-        add_shield_emitter(module, scale)
+        add_shield_emitter(module, scale, naming_prefix=naming_prefix)
     elif module_type == 'HANGAR':
         # Add hangar bay doors
-        add_hangar_doors(module, scale)
+        add_hangar_doors(module, scale, naming_prefix=naming_prefix)
 
 
-def add_weapon_barrels(parent, scale):
+def add_weapon_barrels(parent, scale, naming_prefix=''):
     """Add weapon barrel indicators to weapon module"""
     for i in range(2):
         offset = (i - 0.5) * scale * 0.3
@@ -224,12 +235,12 @@ def add_weapon_barrels(parent, scale):
             location=(parent.location.x + offset, parent.location.y + scale * 0.6, parent.location.z)
         )
         barrel = bpy.context.active_object
-        barrel.name = f"{parent.name}_Barrel_{i+1}"
+        barrel.name = _prefixed_name(naming_prefix, f"{parent.name}_Barrel_{i+1}")
         barrel.rotation_euler = (math.radians(90), 0, 0)
         barrel.parent = parent
 
 
-def add_sensor_dish(parent, scale):
+def add_sensor_dish(parent, scale, naming_prefix=''):
     """Add sensor dish to sensor module"""
     bpy.ops.mesh.primitive_cone_add(
         radius1=scale * 0.4,
@@ -237,12 +248,12 @@ def add_sensor_dish(parent, scale):
         location=(parent.location.x, parent.location.y, parent.location.z + scale * 0.5)
     )
     dish = bpy.context.active_object
-    dish.name = f"{parent.name}_Dish"
+    dish.name = _prefixed_name(naming_prefix, f"{parent.name}_Dish")
     dish.rotation_euler = (math.radians(180), 0, 0)
     dish.parent = parent
 
 
-def add_shield_emitter(parent, scale):
+def add_shield_emitter(parent, scale, naming_prefix=''):
     """Add shield emitter effect to shield module"""
     # Create emitter ring
     bpy.ops.mesh.primitive_torus_add(
@@ -251,7 +262,7 @@ def add_shield_emitter(parent, scale):
         location=parent.location
     )
     emitter = bpy.context.active_object
-    emitter.name = f"{parent.name}_Emitter"
+    emitter.name = _prefixed_name(naming_prefix, f"{parent.name}_Emitter")
     emitter.parent = parent
     
     # Add glowing material
@@ -266,7 +277,7 @@ def add_shield_emitter(parent, scale):
     emitter.data.materials.append(mat)
 
 
-def add_hangar_doors(parent, scale):
+def add_hangar_doors(parent, scale, naming_prefix=''):
     """Add hangar bay doors to hangar module"""
     # Left door
     bpy.ops.mesh.primitive_cube_add(
@@ -274,7 +285,7 @@ def add_hangar_doors(parent, scale):
         location=(parent.location.x - scale * 0.4, parent.location.y, parent.location.z)
     )
     left_door = bpy.context.active_object
-    left_door.name = f"{parent.name}_Door_Left"
+    left_door.name = _prefixed_name(naming_prefix, f"{parent.name}_Door_Left")
     left_door.scale = (scale * 0.1, scale * 0.8, scale * 0.8)
     bpy.ops.object.transform_apply(scale=True)
     left_door.parent = parent
@@ -285,7 +296,7 @@ def add_hangar_doors(parent, scale):
         location=(parent.location.x + scale * 0.4, parent.location.y, parent.location.z)
     )
     right_door = bpy.context.active_object
-    right_door.name = f"{parent.name}_Door_Right"
+    right_door.name = _prefixed_name(naming_prefix, f"{parent.name}_Door_Right")
     right_door.scale = (scale * 0.1, scale * 0.8, scale * 0.8)
     bpy.ops.object.transform_apply(scale=True)
     right_door.parent = parent

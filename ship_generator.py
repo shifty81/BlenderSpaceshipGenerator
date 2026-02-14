@@ -17,6 +17,7 @@ SHIP_CONFIGS = {
         'hull_segments': 3,
         'engines': 2,
         'weapons': 0,
+        'turret_hardpoints': 0,
         'wings': False,
         'crew_capacity': 2,
     },
@@ -25,6 +26,7 @@ SHIP_CONFIGS = {
         'hull_segments': 4,
         'engines': 2,
         'weapons': 2,
+        'turret_hardpoints': 1,
         'wings': True,
         'crew_capacity': 1,
     },
@@ -33,6 +35,7 @@ SHIP_CONFIGS = {
         'hull_segments': 5,
         'engines': 3,
         'weapons': 4,
+        'turret_hardpoints': 2,
         'wings': True,
         'crew_capacity': 4,
     },
@@ -41,6 +44,7 @@ SHIP_CONFIGS = {
         'hull_segments': 6,
         'engines': 4,
         'weapons': 6,
+        'turret_hardpoints': 3,
         'wings': False,
         'crew_capacity': 10,
     },
@@ -49,6 +53,7 @@ SHIP_CONFIGS = {
         'hull_segments': 7,
         'engines': 4,
         'weapons': 8,
+        'turret_hardpoints': 4,
         'wings': False,
         'crew_capacity': 25,
     },
@@ -57,6 +62,7 @@ SHIP_CONFIGS = {
         'hull_segments': 8,
         'engines': 6,
         'weapons': 12,
+        'turret_hardpoints': 6,
         'wings': False,
         'crew_capacity': 50,
     },
@@ -65,6 +71,7 @@ SHIP_CONFIGS = {
         'hull_segments': 10,
         'engines': 8,
         'weapons': 16,
+        'turret_hardpoints': 8,
         'wings': False,
         'crew_capacity': 100,
     },
@@ -73,6 +80,7 @@ SHIP_CONFIGS = {
         'hull_segments': 12,
         'engines': 10,
         'weapons': 10,
+        'turret_hardpoints': 6,
         'wings': False,
         'crew_capacity': 200,
     },
@@ -81,6 +89,7 @@ SHIP_CONFIGS = {
         'hull_segments': 15,
         'engines': 12,
         'weapons': 20,
+        'turret_hardpoints': 10,
         'wings': False,
         'crew_capacity': 500,
     },
@@ -89,6 +98,7 @@ SHIP_CONFIGS = {
         'hull_segments': 9,
         'engines': 6,
         'weapons': 14,
+        'turret_hardpoints': 7,
         'wings': False,
         'crew_capacity': 75,
     },
@@ -97,6 +107,7 @@ SHIP_CONFIGS = {
         'hull_segments': 14,
         'engines': 5,
         'weapons': 18,
+        'turret_hardpoints': 10,
         'wings': False,
         'crew_capacity': 400,
     },
@@ -105,6 +116,7 @@ SHIP_CONFIGS = {
         'hull_segments': 18,
         'engines': 10,
         'weapons': 24,
+        'turret_hardpoints': 10,
         'wings': False,
         'crew_capacity': 1000,
     },
@@ -113,6 +125,7 @@ SHIP_CONFIGS = {
         'hull_segments': 5,
         'engines': 3,
         'weapons': 1,
+        'turret_hardpoints': 0,
         'wings': False,
         'crew_capacity': 5,
     },
@@ -121,6 +134,7 @@ SHIP_CONFIGS = {
         'hull_segments': 4,
         'engines': 2,
         'weapons': 0,
+        'turret_hardpoints': 0,
         'wings': False,
         'crew_capacity': 3,
     },
@@ -129,6 +143,7 @@ SHIP_CONFIGS = {
         'hull_segments': 5,
         'engines': 3,
         'weapons': 0,
+        'turret_hardpoints': 0,
         'wings': False,
         'crew_capacity': 4,
     },
@@ -137,6 +152,7 @@ SHIP_CONFIGS = {
         'hull_segments': 5,
         'engines': 2,
         'weapons': 1,
+        'turret_hardpoints': 1,
         'wings': True,
         'crew_capacity': 1,
     },
@@ -145,6 +161,7 @@ SHIP_CONFIGS = {
         'hull_segments': 6,
         'engines': 4,
         'weapons': 0,
+        'turret_hardpoints': 0,
         'wings': False,
         'crew_capacity': 2,
     },
@@ -153,15 +170,23 @@ SHIP_CONFIGS = {
         'hull_segments': 7,
         'engines': 2,
         'weapons': 2,
+        'turret_hardpoints': 1,
         'wings': True,
         'crew_capacity': 1,
     },
 }
 
 
+def _prefixed_name(prefix, name):
+    """Return name with project prefix applied if prefix is non-empty."""
+    if prefix:
+        return f"{prefix}_{name}"
+    return name
+
+
 def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
                        module_slots=2, hull_complexity=1.0, symmetry=True,
-                       style='MIXED'):
+                       style='MIXED', naming_prefix='', turret_hardpoints=0):
     """
     Generate a complete spaceship with all parts
     
@@ -173,6 +198,8 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
         hull_complexity: Complexity factor for hull geometry
         symmetry: Whether to use symmetrical design
         style: Design style (MIXED, X4, ELITE, EVE)
+        naming_prefix: Project naming prefix applied to all generated elements
+        turret_hardpoints: Number of turret hardpoints to generate (0-10)
     """
     random.seed(seed)
     
@@ -181,7 +208,7 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
     scale = config['scale']
     
     # Create main collection for the ship
-    collection_name = f"Spaceship_{ship_class}_{seed}"
+    collection_name = _prefixed_name(naming_prefix, f"Spaceship_{ship_class}_{seed}")
     collection = bpy.data.collections.new(collection_name)
     bpy.context.scene.collection.children.link(collection)
     
@@ -191,7 +218,8 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
         scale=scale,
         complexity=hull_complexity,
         symmetry=symmetry,
-        style=style
+        style=style,
+        naming_prefix=naming_prefix
     )
     collection.objects.link(hull)
     
@@ -200,7 +228,8 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
         scale=scale,
         position=(0, scale * 0.8, 0),
         ship_class=ship_class,
-        style=style
+        style=style,
+        naming_prefix=naming_prefix
     )
     collection.objects.link(cockpit)
     
@@ -209,7 +238,8 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
         count=config['engines'],
         scale=scale,
         symmetry=symmetry,
-        style=style
+        style=style,
+        naming_prefix=naming_prefix
     )
     for engine in engines:
         collection.objects.link(engine)
@@ -219,7 +249,8 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
         wings = ship_parts.generate_wings(
             scale=scale,
             symmetry=symmetry,
-            style=style
+            style=style,
+            naming_prefix=naming_prefix
         )
         for wing in wings:
             collection.objects.link(wing)
@@ -229,17 +260,32 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
         weapons = ship_parts.generate_weapon_hardpoints(
             count=config['weapons'],
             scale=scale,
-            symmetry=symmetry
+            symmetry=symmetry,
+            naming_prefix=naming_prefix
         )
         for weapon in weapons:
             collection.objects.link(weapon)
+    
+    # Generate turret hardpoints
+    turret_count = turret_hardpoints if turret_hardpoints > 0 else config.get('turret_hardpoints', 0)
+    turret_count = min(turret_count, 10)
+    if turret_count > 0:
+        turrets = ship_parts.generate_turret_hardpoints(
+            count=turret_count,
+            scale=scale,
+            symmetry=symmetry,
+            naming_prefix=naming_prefix
+        )
+        for turret in turrets:
+            collection.objects.link(turret)
     
     # Generate modules
     if module_slots > 0:
         modules = module_system.generate_modules(
             count=module_slots,
             scale=scale,
-            ship_class=ship_class
+            ship_class=ship_class,
+            naming_prefix=naming_prefix
         )
         for module in modules:
             collection.objects.link(module)
@@ -249,7 +295,8 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
         interior_objects = interior_generator.generate_interior(
             ship_class=ship_class,
             scale=scale,
-            crew_capacity=config['crew_capacity']
+            crew_capacity=config['crew_capacity'],
+            naming_prefix=naming_prefix
         )
         for obj in interior_objects:
             collection.objects.link(obj)
