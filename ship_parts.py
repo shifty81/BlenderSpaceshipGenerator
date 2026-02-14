@@ -60,6 +60,14 @@ def generate_hull(segments=5, scale=1.0, complexity=1.0, symmetry=True, style='M
     elif style == 'EVE':
         # Eve style: Organic, flowing
         apply_eve_style(hull, scale)
+    elif style == 'SOLARI':
+        apply_solari_style(hull, scale)
+    elif style == 'VEYREN':
+        apply_veyren_style(hull, scale)
+    elif style == 'AURELIAN':
+        apply_aurelian_style(hull, scale)
+    elif style == 'KELDARI':
+        apply_keldari_style(hull, scale)
     else:
         # Mixed style
         apply_mixed_style(hull, scale)
@@ -115,6 +123,47 @@ def apply_mixed_style(hull, scale):
     bpy.context.view_layer.objects.active = hull
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.bevel(offset=0.05 * scale, segments=2)
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+
+def apply_solari_style(hull, scale):
+    """Apply Solari faction style - golden, elegant, armor-focused"""
+    bpy.context.view_layer.objects.active = hull
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.bevel(offset=0.08 * scale, segments=3)
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    # Add smooth curves for elegant look
+    cast_mod = hull.modifiers.new(name="Cast", type='CAST')
+    cast_mod.factor = 0.15
+    cast_mod.cast_type = 'SPHERE'
+
+
+def apply_veyren_style(hull, scale):
+    """Apply Veyren faction style - angular, utilitarian, shield-focused"""
+    bpy.context.view_layer.objects.active = hull
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.bevel(offset=0.12 * scale, segments=1)
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+
+def apply_aurelian_style(hull, scale):
+    """Apply Aurelian faction style - sleek, organic, drone-focused"""
+    bpy.context.view_layer.objects.active = hull
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.subdivide(number_cuts=1)
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    cast_mod = hull.modifiers.new(name="Cast", type='CAST')
+    cast_mod.factor = 0.25
+    cast_mod.cast_type = 'SPHERE'
+
+
+def apply_keldari_style(hull, scale):
+    """Apply Keldari faction style - rugged, industrial, missile-focused"""
+    bpy.context.view_layer.objects.active = hull
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.bevel(offset=0.15 * scale, segments=1)
     bpy.ops.object.mode_set(mode='OBJECT')
 
 
