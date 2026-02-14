@@ -97,8 +97,17 @@ def apply_elite_style(hull, scale):
 
 def apply_eve_style(hull, scale):
     """Apply Eve Online style - organic and flowing"""
-    # Add a curve-based deformation
-    pass
+    # Add a smooth deformation for organic look
+    bpy.context.view_layer.objects.active = hull
+    bpy.ops.object.mode_set(mode='EDIT')
+    # Add some organic variation with proportional editing concept
+    bpy.ops.mesh.subdivide(number_cuts=1)
+    bpy.ops.object.mode_set(mode='OBJECT')
+    
+    # Add a cast modifier for more organic curves
+    cast_mod = hull.modifiers.new(name="Cast", type='CAST')
+    cast_mod.factor = 0.3
+    cast_mod.cast_type = 'SPHERE'
 
 
 def apply_mixed_style(hull, scale):

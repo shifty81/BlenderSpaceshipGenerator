@@ -1,43 +1,54 @@
 """
 Basic tests for the Blender Spaceship Generator addon
 Tests the module structure and basic functionality
+
+NOTE: This test file requires Blender's bpy module and must be run
+inside Blender. For structure validation without Blender, use test_validation.py
 """
 
 import sys
 import os
 
-# Add the addon directory to path for testing
-addon_path = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, addon_path)
-
+# Note: This test is designed to run inside Blender's Python environment
+# where bpy is available. For validation without Blender, use test_validation.py
 
 def test_imports():
-    """Test that all modules can be imported"""
+    """Test that all modules can be imported (requires bpy)"""
     print("Testing module imports...")
+    print("NOTE: This test requires Blender's bpy module")
     
     try:
-        import ship_generator
+        import bpy
+        print("✓ bpy module available (running in Blender)")
+    except ImportError:
+        print("✗ bpy module not available - this test must run inside Blender")
+        print("  For structure validation, use test_validation.py instead")
+        return False
+    
+    try:
+        # Import as they would be imported within the addon
+        from . import ship_generator
         print("✓ ship_generator imported successfully")
     except ImportError as e:
         print(f"✗ Failed to import ship_generator: {e}")
         return False
     
     try:
-        import ship_parts
+        from . import ship_parts
         print("✓ ship_parts imported successfully")
     except ImportError as e:
         print(f"✗ Failed to import ship_parts: {e}")
         return False
     
     try:
-        import interior_generator
+        from . import interior_generator
         print("✓ interior_generator imported successfully")
     except ImportError as e:
         print(f"✗ Failed to import interior_generator: {e}")
         return False
     
     try:
-        import module_system
+        from . import module_system
         print("✓ module_system imported successfully")
     except ImportError as e:
         print(f"✗ Failed to import module_system: {e}")
@@ -50,7 +61,7 @@ def test_ship_configs():
     """Test that ship configurations are properly defined"""
     print("\nTesting ship configurations...")
     
-    import ship_generator
+    from . import ship_generator
     
     expected_classes = [
         'SHUTTLE', 'FIGHTER', 'CORVETTE', 'FRIGATE', 
@@ -79,7 +90,7 @@ def test_module_types():
     """Test that module types are properly defined"""
     print("\nTesting module types...")
     
-    import module_system
+    from . import module_system
     
     expected_types = ['CARGO', 'WEAPON', 'SHIELD', 'HANGAR', 'SENSOR', 'POWER']
     
@@ -105,7 +116,7 @@ def test_interior_constants():
     """Test that interior constants are properly defined"""
     print("\nTesting interior constants...")
     
-    import interior_generator
+    from . import interior_generator
     
     constants = {
         'HUMAN_HEIGHT': interior_generator.HUMAN_HEIGHT,
