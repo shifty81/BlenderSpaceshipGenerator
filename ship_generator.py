@@ -1,13 +1,24 @@
 """
 Main ship generator module
 Coordinates the generation of ship parts and assembly
+
+Generation pipeline (spine-first ordered assembly):
+  1. Core spine (reactor → capacitor → bridge)
+  2. Major structures (wings, structural plates)
+  3. Engines (archetype-varied)
+  4. Weapons & turrets
+  5. Detail modules
+  6. Hull taper / deform pass
+  7. Bevel + auto-smooth cleanup pass
 """
 
 import bpy
+import math
 import random
 from . import ship_parts
 from . import interior_generator
 from . import module_system
+from . import brick_system
 
 
 # Maximum number of turret hardpoints any ship may have
@@ -190,10 +201,22 @@ def _prefixed_name(prefix, name):
 
 def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
                        module_slots=2, hull_complexity=1.0, symmetry=True,
-                       style='MIXED', naming_prefix='', turret_hardpoints=0):
+                       style='MIXED', naming_prefix='', turret_hardpoints=0,
+                       hull_taper=0.85):
     """
-    Generate a complete spaceship with all parts
-    
+    Generate a complete spaceship with all parts using spine-first assembly.
+
+    Generation order:
+      1. Core hull (spine)
+      2. Cockpit / bridge
+      3. Major structures (wings)
+      4. Engines (archetype-varied)
+      5. Weapons & turrets
+      6. Detail modules
+      7. Interior (optional)
+      8. Hull taper / deform pass
+      9. Bevel + auto-smooth cleanup pass
+
     Args:
         ship_class: Type of ship to generate
         seed: Random seed for generation
@@ -204,19 +227,26 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
         style: Design style (MIXED, X4, ELITE, EVE)
         naming_prefix: Project naming prefix applied to all generated elements
         turret_hardpoints: Number of turret hardpoints to generate (0-10)
+        hull_taper: Taper factor for hull silhouette shaping (0.5-1.0, 1.0=none)
     """
     random.seed(seed)
-    
+
     # Get ship configuration
     config = SHIP_CONFIGS.get(ship_class, SHIP_CONFIGS['FIGHTER'])
     scale = config['scale']
-    
+    grid_size = brick_system.get_grid_size(ship_class)
+
+    # Track placed bricks for Ship DNA export
+    placed_bricks = []
+
     # Create main collection for the ship
     collection_name = _prefixed_name(naming_prefix, f"Spaceship_{ship_class}_{seed}")
     collection = bpy.data.collections.new(collection_name)
     bpy.context.scene.collection.children.link(collection)
-    
-    # Generate hull
+
+    # ------------------------------------------------------------------
+    # Stage 1 – Core hull (spine)
+    # ------------------------------------------------------------------
     hull = ship_parts.generate_hull(
         segments=config['hull_segments'],
         scale=scale,
@@ -226,8 +256,11 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
         naming_prefix=naming_prefix
     )
     collection.objects.link(hull)
-    
-    # Generate cockpit/bridge
+    placed_bricks.append({'type': 'STRUCTURAL_SPINE', 'pos': [0, 0, 0]})
+
+    # ------------------------------------------------------------------
+    # Stage 2 – Cockpit / bridge
+    # ------------------------------------------------------------------
     cockpit = ship_parts.generate_cockpit(
         scale=scale,
         position=(0, scale * 0.8, 0),
@@ -236,19 +269,11 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
         naming_prefix=naming_prefix
     )
     collection.objects.link(cockpit)
-    
-    # Generate engines
-    engines = ship_parts.generate_engines(
-        count=config['engines'],
-        scale=scale,
-        symmetry=symmetry,
-        style=style,
-        naming_prefix=naming_prefix
-    )
-    for engine in engines:
-        collection.objects.link(engine)
-    
-    # Generate wings if applicable
+    placed_bricks.append({'type': 'REACTOR_CORE', 'pos': [0, scale * 0.8, 0]})
+
+    # ------------------------------------------------------------------
+    # Stage 3 – Major structures (wings)
+    # ------------------------------------------------------------------
     if config['wings']:
         wings = ship_parts.generate_wings(
             scale=scale,
@@ -258,8 +283,33 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
         )
         for wing in wings:
             collection.objects.link(wing)
-    
-    # Generate weapon hardpoints
+            placed_bricks.append({
+                'type': 'HULL_PLATE',
+                'pos': list(wing.location),
+            })
+
+    # ------------------------------------------------------------------
+    # Stage 4 – Engines (archetype-varied)
+    # ------------------------------------------------------------------
+    engines = ship_parts.generate_engines(
+        count=config['engines'],
+        scale=scale,
+        symmetry=symmetry,
+        style=style,
+        naming_prefix=naming_prefix
+    )
+    for i, engine in enumerate(engines):
+        collection.objects.link(engine)
+        archetype = brick_system.select_engine_archetype(i, len(engines))
+        placed_bricks.append({
+            'type': 'ENGINE_BLOCK',
+            'pos': list(engine.location),
+            'archetype': archetype,
+        })
+
+    # ------------------------------------------------------------------
+    # Stage 5 – Weapons & turrets
+    # ------------------------------------------------------------------
     if config['weapons'] > 0:
         weapons = ship_parts.generate_weapon_hardpoints(
             count=config['weapons'],
@@ -269,8 +319,11 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
         )
         for weapon in weapons:
             collection.objects.link(weapon)
-    
-    # Generate turret hardpoints
+            placed_bricks.append({
+                'type': 'HARDPOINT_MOUNT',
+                'pos': list(weapon.location),
+            })
+
     turret_count = turret_hardpoints if turret_hardpoints > 0 else config.get('turret_hardpoints', 0)
     turret_count = min(turret_count, MAX_TURRET_HARDPOINTS)
     if turret_count > 0:
@@ -282,8 +335,14 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
         )
         for turret in turrets:
             collection.objects.link(turret)
-    
-    # Generate modules
+            placed_bricks.append({
+                'type': 'HARDPOINT_MOUNT',
+                'pos': list(turret.location),
+            })
+
+    # ------------------------------------------------------------------
+    # Stage 6 – Detail modules
+    # ------------------------------------------------------------------
     if module_slots > 0:
         modules = module_system.generate_modules(
             count=module_slots,
@@ -293,8 +352,14 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
         )
         for module in modules:
             collection.objects.link(module)
-    
-    # Generate interior if requested
+            placed_bricks.append({
+                'type': 'CAPACITOR',
+                'pos': list(module.location),
+            })
+
+    # ------------------------------------------------------------------
+    # Stage 7 – Interior (optional)
+    # ------------------------------------------------------------------
     if generate_interior:
         interior_objects = interior_generator.generate_interior(
             ship_class=ship_class,
@@ -304,16 +369,93 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
         )
         for obj in interior_objects:
             collection.objects.link(obj)
-    
+
     # Parent all objects to the hull
     for obj in collection.objects:
         if obj != hull:
             obj.parent = hull
-    
+
+    # ------------------------------------------------------------------
+    # Stage 8 – Hull taper / deform pass
+    # ------------------------------------------------------------------
+    taper_hull(hull, factor=hull_taper)
+
+    # ------------------------------------------------------------------
+    # Stage 9 – Bevel + auto-smooth cleanup pass
+    # ------------------------------------------------------------------
+    apply_cleanup_pass(hull)
+
     # Center the ship at the 3D cursor
     hull.location = bpy.context.scene.cursor.location
-    
+
+    # Store Ship DNA as a custom property on the hull
+    dna = brick_system.generate_ship_dna(
+        ship_class=ship_class,
+        seed=seed,
+        bricks=placed_bricks,
+        style=style,
+        naming_prefix=naming_prefix,
+    )
+    hull["ship_dna"] = brick_system.ship_dna_to_json(dna)
+
     return hull
+
+
+# ------------------------------------------------------------------
+# Post-processing helpers
+# ------------------------------------------------------------------
+
+
+def taper_hull(obj, axis='Y', factor=0.85):
+    """Apply a silhouette taper along *axis* to break the box look.
+
+    Vertices further from centre along *axis* get their cross-section
+    scaled by *factor*, giving the hull a tapered nose/tail.
+    A factor of 1.0 means no taper (identity).
+    """
+    if factor >= 1.0:
+        return
+
+    mesh = obj.data
+    if not mesh.vertices:
+        return
+
+    # Determine the extent along the taper axis
+    axis_idx = {'X': 0, 'Y': 1, 'Z': 2}.get(axis, 1)
+    coords = [v.co[axis_idx] for v in mesh.vertices]
+    min_val = min(coords)
+    max_val = max(coords)
+    span = max_val - min_val
+    if span == 0:
+        return
+
+    for v in mesh.vertices:
+        t = abs(v.co[axis_idx] - (min_val + max_val) / 2) / (span / 2)
+        scale = 1.0 - (1.0 - factor) * t
+        if axis_idx != 0:
+            v.co.x *= scale
+        if axis_idx != 2:
+            v.co.z *= scale
+
+    mesh.update()
+
+
+def apply_cleanup_pass(obj):
+    """Add bevel and auto-smooth modifiers for a manufactured look."""
+    # Add bevel modifier if not already present
+    if not any(m.type == 'BEVEL' for m in obj.modifiers):
+        bevel = obj.modifiers.new(name="Cleanup_Bevel", type='BEVEL')
+        bevel.width = 0.03 * max(obj.dimensions)
+        bevel.segments = 2
+        bevel.limit_method = 'ANGLE'
+        bevel.angle_limit = math.radians(30)
+
+    # Enable auto-smooth via an edge-split modifier (compatible with
+    # Blender 2.80+).  The existing EdgeSplit added during hull generation
+    # already handles this, so we only act if one is missing.
+    if not any(m.type == 'EDGE_SPLIT' for m in obj.modifiers):
+        es = obj.modifiers.new(name="Cleanup_EdgeSplit", type='EDGE_SPLIT')
+        es.split_angle = math.radians(30)
 
 
 def register():

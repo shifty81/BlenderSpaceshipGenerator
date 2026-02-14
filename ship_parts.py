@@ -1,12 +1,16 @@
 """
 Ship parts generation module
 Generates individual ship components (hull, cockpit, engines, wings, weapons, turrets)
+
+Engine generation supports three archetypes (MAIN_THRUST, MANEUVERING,
+UTILITY_EXHAUST) for visual variety defined in :mod:`brick_system`.
 """
 
 import bpy
 import bmesh
 import random
 import math
+from . import brick_system
 
 
 # Maximum number of turret hardpoints any ship may have
@@ -236,8 +240,12 @@ def generate_cockpit(scale=1.0, position=(0, 0, 0), ship_class='FIGHTER', style=
 
 def generate_engines(count=2, scale=1.0, symmetry=True, style='MIXED', naming_prefix=''):
     """
-    Generate engine units
-    
+    Generate engine units with archetype-based variation.
+
+    Engines are assigned one of three archetypes (MAIN_THRUST, MANEUVERING,
+    UTILITY_EXHAUST) based on their index.  Main engines are larger with
+    nozzle flares; maneuvering thrusters are small; utility vents are flat.
+
     Args:
         count: Number of engines
         scale: Ship scale factor
@@ -246,69 +254,117 @@ def generate_engines(count=2, scale=1.0, symmetry=True, style='MIXED', naming_pr
         naming_prefix: Project naming prefix
     """
     engines = []
-    engine_size = scale * 0.2
-    
+    base_engine_size = scale * 0.2
+
     # Position engines at the rear of the ship
     rear_position = -scale * 0.9
-    
+
+    # Pre-compute archetype for each logical engine slot
+    archetypes = [
+        brick_system.select_engine_archetype(i, count)
+        for i in range(count)
+    ]
+
     if symmetry and count % 2 == 0:
         # Symmetric engine placement
         spacing = scale * 0.3
         for i in range(count // 2):
             offset = spacing * (i + 0.5)
-            
+
+            arch_name = archetypes[i * 2]
+            arch = brick_system.get_engine_archetype(arch_name)
+            engine_size = base_engine_size * arch['radius_factor']
+            depth = engine_size * 2 * random.uniform(*arch['depth_range'])
+
             # Left engine
             bpy.ops.mesh.primitive_cylinder_add(
                 radius=engine_size,
-                depth=engine_size * 2,
+                depth=depth,
                 location=(offset, rear_position, 0)
             )
             left_engine = bpy.context.active_object
             left_engine.name = _prefixed_name(naming_prefix, f"Engine_L{i+1}")
             left_engine.rotation_euler = (math.radians(90), 0, 0)
+            left_engine["engine_archetype"] = arch_name
             engines.append(left_engine)
-            
+
+            # Add nozzle flare for main thrust engines
+            if arch['has_nozzle_flare']:
+                _add_nozzle_flare(left_engine, engine_size, naming_prefix)
+
             # Right engine
             bpy.ops.mesh.primitive_cylinder_add(
                 radius=engine_size,
-                depth=engine_size * 2,
+                depth=depth,
                 location=(-offset, rear_position, 0)
             )
             right_engine = bpy.context.active_object
             right_engine.name = _prefixed_name(naming_prefix, f"Engine_R{i+1}")
             right_engine.rotation_euler = (math.radians(90), 0, 0)
+            right_engine["engine_archetype"] = arch_name
             engines.append(right_engine)
+
+            if arch['has_nozzle_flare']:
+                _add_nozzle_flare(right_engine, engine_size, naming_prefix)
     else:
         # Non-symmetric or odd count
         for i in range(count):
             x_offset = (i - count / 2) * scale * 0.3
+
+            arch_name = archetypes[i]
+            arch = brick_system.get_engine_archetype(arch_name)
+            engine_size = base_engine_size * arch['radius_factor']
+            depth = engine_size * 2 * random.uniform(*arch['depth_range'])
+
             bpy.ops.mesh.primitive_cylinder_add(
                 radius=engine_size,
-                depth=engine_size * 2,
+                depth=depth,
                 location=(x_offset, rear_position, 0)
             )
             engine = bpy.context.active_object
             engine.name = _prefixed_name(naming_prefix, f"Engine_{i+1}")
             engine.rotation_euler = (math.radians(90), 0, 0)
+            engine["engine_archetype"] = arch_name
             engines.append(engine)
-    
-    # Add glow material to engines
+
+            if arch['has_nozzle_flare']:
+                _add_nozzle_flare(engine, engine_size, naming_prefix)
+
+    # Add glow material to engines (strength varies by archetype)
     for engine in engines:
+        arch_name = engine.get("engine_archetype", "MAIN_THRUST")
+        arch = brick_system.get_engine_archetype(arch_name) or brick_system.ENGINE_ARCHETYPES['MAIN_THRUST']
+
         mat = bpy.data.materials.new(name="Engine_Glow")
         mat.use_nodes = True
         nodes = mat.node_tree.nodes
-        
+
         # Add emission shader
         emission = nodes.new(type='ShaderNodeEmission')
         emission.inputs['Color'].default_value = (0.2, 0.5, 1.0, 1.0)  # Blue glow
-        emission.inputs['Strength'].default_value = 5.0
-        
+        emission.inputs['Strength'].default_value = arch['glow_strength']
+
         output = nodes.get('Material Output')
         mat.node_tree.links.new(emission.outputs['Emission'], output.inputs['Surface'])
-        
+
         engine.data.materials.append(mat)
-    
+
     return engines
+
+
+def _add_nozzle_flare(engine_obj, engine_size, naming_prefix=''):
+    """Add a cone-shaped nozzle flare to a main-thrust engine."""
+    loc = engine_obj.location
+    bpy.ops.mesh.primitive_cone_add(
+        radius1=engine_size * 1.3,
+        radius2=engine_size * 0.9,
+        depth=engine_size * 0.5,
+        location=(loc.x, loc.y - engine_size * 1.2, loc.z)
+    )
+    flare = bpy.context.active_object
+    flare.name = _prefixed_name(naming_prefix, f"{engine_obj.name}_Flare")
+    flare.rotation_euler = (math.radians(90), 0, 0)
+    flare.parent = engine_obj
 
 
 def generate_wings(scale=1.0, symmetry=True, style='MIXED', naming_prefix=''):
