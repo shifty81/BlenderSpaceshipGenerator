@@ -34,6 +34,7 @@ def test_addon_structure():
         'station_generator.py',
         'asteroid_generator.py',
         'texture_generator.py',
+        'brick_system.py',
     ]
     
     all_exist = True
@@ -63,6 +64,7 @@ def test_file_syntax():
         'station_generator.py',
         'asteroid_generator.py',
         'texture_generator.py',
+        'brick_system.py',
     ]
     
     all_valid = True
@@ -145,6 +147,7 @@ def test_register_functions():
         'station_generator.py',
         'asteroid_generator.py',
         'texture_generator.py',
+        'brick_system.py',
     ]
     
     all_valid = True
@@ -308,6 +311,131 @@ def test_turret_generation_function():
     return all_valid
 
 
+def test_brick_system():
+    """Test the brick taxonomy, scale bands, grid system and Ship DNA helpers"""
+    print("\nTesting brick system...")
+
+    addon_path = os.path.dirname(os.path.abspath(__file__))
+    bs_path = os.path.join(addon_path, 'brick_system.py')
+
+    # Import brick_system directly (no bpy dependency)
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("brick_system", bs_path)
+    bs = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(bs)
+
+    all_valid = True
+
+    # Check BRICK_TYPES has entries for every category
+    for category, brick_names in bs.BRICK_CATEGORIES.items():
+        for name in brick_names:
+            if name not in bs.BRICK_TYPES:
+                print(f"✗ Brick type {name} (category {category}) missing from BRICK_TYPES")
+                all_valid = False
+            else:
+                bt = bs.BRICK_TYPES[name]
+                for key in ('category', 'size', 'shape', 'scale_band', 'hardpoints'):
+                    if key not in bt:
+                        print(f"✗ Brick {name} missing key '{key}'")
+                        all_valid = False
+    if all_valid:
+        print(f"✓ All {sum(len(v) for v in bs.BRICK_CATEGORIES.values())} brick types valid")
+
+    # Scale bands
+    for band in ('primary', 'structural', 'detail'):
+        val = bs.get_scale_factor(band)
+        if not (0 < val <= 1.0):
+            print(f"✗ Scale band '{band}' has invalid factor {val}")
+            all_valid = False
+    if bs.get_scale_factor('primary') > bs.get_scale_factor('structural') > bs.get_scale_factor('detail'):
+        print("✓ Scale hierarchy correct (primary > structural > detail)")
+    else:
+        print("✗ Scale hierarchy incorrect")
+        all_valid = False
+
+    # Grid snapping
+    snapped = bs.snap_to_grid((1.3, 2.7, 0.1), 1.0)
+    if snapped == (1.0, 3.0, 0.0):
+        print("✓ snap_to_grid works correctly")
+    else:
+        print(f"✗ snap_to_grid returned {snapped}, expected (1.0, 3.0, 0.0)")
+        all_valid = False
+
+    # Engine archetypes
+    for arch in ('MAIN_THRUST', 'MANEUVERING', 'UTILITY_EXHAUST'):
+        if bs.get_engine_archetype(arch) is None:
+            print(f"✗ Engine archetype {arch} missing")
+            all_valid = False
+    print("✓ All engine archetypes defined")
+
+    # Ship DNA round-trip
+    dna = bs.generate_ship_dna('CRUISER', 42, [{'type': 'REACTOR_CORE', 'pos': [0, 0, 0]}])
+    json_str = bs.ship_dna_to_json(dna)
+    loaded = bs.ship_dna_from_json(json_str)
+    if loaded['seed'] == 42 and loaded['class'] == 'CRUISER' and len(loaded['bricks']) == 1:
+        print("✓ Ship DNA round-trip works")
+    else:
+        print("✗ Ship DNA round-trip failed")
+        all_valid = False
+
+    return all_valid
+
+
+def test_hull_taper_and_cleanup():
+    """Test that ship_generator defines taper_hull and apply_cleanup_pass"""
+    print("\nTesting hull taper and cleanup pass...")
+
+    addon_path = os.path.dirname(os.path.abspath(__file__))
+    sg_path = os.path.join(addon_path, 'ship_generator.py')
+
+    with open(sg_path, 'r') as f:
+        content = f.read()
+
+    checks = {
+        'def taper_hull(': 'taper_hull function',
+        'def apply_cleanup_pass(': 'apply_cleanup_pass function',
+        'hull_taper': 'hull_taper parameter',
+        '"ship_dna"': 'Ship DNA custom property',
+    }
+
+    all_valid = True
+    for pattern, description in checks.items():
+        if pattern in content:
+            print(f"✓ {description} found")
+        else:
+            print(f"✗ {description} not found")
+            all_valid = False
+
+    return all_valid
+
+
+def test_engine_archetypes():
+    """Test that ship_parts uses engine archetypes"""
+    print("\nTesting engine archetype integration...")
+
+    addon_path = os.path.dirname(os.path.abspath(__file__))
+    sp_path = os.path.join(addon_path, 'ship_parts.py')
+
+    with open(sp_path, 'r') as f:
+        content = f.read()
+
+    checks = {
+        'engine_archetype': 'engine archetype custom property',
+        'select_engine_archetype': 'archetype selection',
+        '_add_nozzle_flare': 'nozzle flare helper',
+    }
+
+    all_valid = True
+    for pattern, description in checks.items():
+        if pattern in content:
+            print(f"✓ {description} found")
+        else:
+            print(f"✗ {description} not found")
+            all_valid = False
+
+    return all_valid
+
+
 def run_tests():
     """Run all validation tests"""
     print("=" * 60)
@@ -323,6 +451,9 @@ def run_tests():
         ("Turret Hardpoint Configs", test_turret_hardpoint_configs),
         ("Naming Prefix Support", test_naming_prefix_support),
         ("Turret Generation Function", test_turret_generation_function),
+        ("Brick System", test_brick_system),
+        ("Hull Taper & Cleanup", test_hull_taper_and_cleanup),
+        ("Engine Archetypes", test_engine_archetypes),
     ]
     
     results = []

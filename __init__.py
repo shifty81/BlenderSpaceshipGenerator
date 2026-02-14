@@ -31,6 +31,7 @@ from . import atlas_exporter
 from . import station_generator
 from . import asteroid_generator
 from . import texture_generator
+from . import brick_system
 
 
 class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
@@ -228,6 +229,21 @@ class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
         max=10
     )
 
+    hull_taper: FloatProperty(
+        name="Hull Taper",
+        description="Silhouette taper factor (lower = more tapered, 1.0 = no taper)",
+        default=0.85,
+        min=0.5,
+        max=1.0
+    )
+
+    ship_dna_export_path: StringProperty(
+        name="Ship DNA Path",
+        description="File path to export Ship DNA JSON for reproducible ships",
+        subtype='FILE_PATH',
+        default=""
+    )
+
 
 class SPACESHIP_OT_generate(bpy.types.Operator):
     """Generate a procedural spaceship"""
@@ -249,6 +265,7 @@ class SPACESHIP_OT_generate(bpy.types.Operator):
             style=props.style,
             naming_prefix=props.naming_prefix,
             turret_hardpoints=props.turret_hardpoints,
+            hull_taper=props.hull_taper,
         )
 
         # Apply procedural textures if requested
@@ -379,6 +396,35 @@ class SPACESHIP_OT_generate_asteroid_belt(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class SPACESHIP_OT_export_ship_dna(bpy.types.Operator):
+    """Export Ship DNA JSON for the selected ship"""
+    bl_idname = "mesh.export_ship_dna"
+    bl_label = "Export Ship DNA"
+    bl_options = {'REGISTER'}
+
+    def execute(self, context):
+        import os
+
+        props = context.scene.spaceship_props
+        export_path = bpy.path.abspath(props.ship_dna_export_path)
+
+        if not export_path or not export_path.endswith('.json'):
+            self.report({'ERROR'}, "Set a valid .json export path first")
+            return {'CANCELLED'}
+
+        obj = context.active_object
+        if obj is None or "ship_dna" not in obj:
+            self.report({'ERROR'}, "Select a generated ship (hull) with Ship DNA")
+            return {'CANCELLED'}
+
+        os.makedirs(os.path.dirname(export_path) or '.', exist_ok=True)
+        with open(export_path, 'w') as f:
+            f.write(obj["ship_dna"])
+
+        self.report({'INFO'}, f"Ship DNA exported to {export_path}")
+        return {'FINISHED'}
+
+
 class SPACESHIP_PT_main_panel(bpy.types.Panel):
     """Main panel for spaceship generator"""
     bl_label = "Spaceship Generator"
@@ -409,6 +455,10 @@ class SPACESHIP_PT_main_panel(bpy.types.Panel):
         layout.prop(props, "turret_hardpoints")
 
         layout.separator()
+        layout.label(text="Hull Shaping:")
+        layout.prop(props, "hull_taper")
+
+        layout.separator()
         layout.label(text="Texture Options:")
         layout.prop(props, "generate_textures")
         if props.generate_textures:
@@ -437,6 +487,11 @@ class SPACESHIP_PT_main_panel(bpy.types.Panel):
         layout.prop(props, "belt_count")
         layout.operator("mesh.generate_asteroid_belt", icon='OUTLINER_OB_POINTCLOUD')
 
+        layout.separator()
+        layout.label(text="Ship DNA Export:")
+        layout.prop(props, "ship_dna_export_path")
+        layout.operator("mesh.export_ship_dna", icon='FILE_TEXT')
+
 
 # Registration
 classes = (
@@ -446,6 +501,7 @@ classes = (
     SPACESHIP_OT_export_obj,
     SPACESHIP_OT_generate_station,
     SPACESHIP_OT_generate_asteroid_belt,
+    SPACESHIP_OT_export_ship_dna,
     SPACESHIP_PT_main_panel,
 )
 
@@ -467,10 +523,12 @@ def register():
     station_generator.register()
     asteroid_generator.register()
     texture_generator.register()
+    brick_system.register()
 
 
 def unregister():
     # Unregister submodules
+    brick_system.unregister()
     texture_generator.unregister()
     asteroid_generator.unregister()
     station_generator.unregister()
