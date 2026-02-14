@@ -102,7 +102,7 @@ Each ship class has predefined characteristics:
 ### Configuration Options
 
 **Ship Class**
-- Choose from 9 ship sizes
+- Choose from 18 ship sizes (Shuttle through Titan plus utility/NMS variants)
 - Affects scale, complexity, and features
 
 **Style**
@@ -110,6 +110,8 @@ Each ship class has predefined characteristics:
 - X4: Angular, industrial, geometric
 - Elite Dangerous: Sleek, aerodynamic
 - Eve Online: Organic, flowing curves
+- EVEOFFLINE Factions: Solari, Veyren, Aurelian, Keldari
+- NMS: Colorful, varied, organic
 
 **Random Seed**
 - Number from 1 to infinity
@@ -135,6 +137,32 @@ Each ship class has predefined characteristics:
 - Enabled: Mirrored left/right design
 - Disabled: Asymmetric, unique look
 - Most fighters use symmetry
+
+**Hull Taper**
+- 0.5 to 1.0 range
+- Lower: Stronger tapered silhouette (nose/tail narrowing)
+- 1.0: No taper (original boxy look)
+- Default 0.85 gives a subtle spaceship feel
+
+### Ship DNA
+
+Every generated ship stores its Ship DNA as a JSON custom property on the
+hull object.  This lets you:
+- **Reproduce** the exact same ship from a seed + brick list
+- **Export** the DNA to a `.json` file (Ship DNA Export in the panel)
+- **Share** ship designs or feed them into game engines
+- **Destroy & salvage** individual bricks in gameplay
+
+Ship DNA records every placed brick type and position so ships become
+assemblies rather than monolithic meshes.
+
+### Engine Archetypes
+
+Engines now vary by role instead of being identical cylinders:
+- **Main Thrust** — large, deep, with a cone-shaped nozzle flare and strong
+  blue glow. Sells scale.
+- **Maneuvering** — small thrusters for attitude control, subtle glow.
+- **Utility Exhaust** — flat vents for auxiliary systems.
 
 ## Advanced Tips
 

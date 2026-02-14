@@ -323,6 +323,11 @@ def get_engine_archetype(name):
     return ENGINE_ARCHETYPES.get(name)
 
 
+# Engine archetype selection thresholds (fraction of total engine count)
+_MAIN_THRUST_RATIO = 0.6
+_MANEUVERING_RATIO = 0.85
+
+
 def select_engine_archetype(index, total_engines):
     """Choose an engine archetype based on the engine's index and total count.
 
@@ -330,9 +335,9 @@ def select_engine_archetype(index, total_engines):
     and the rest are utility exhaust.
     """
     ratio = index / max(total_engines, 1)
-    if ratio < 0.6:
+    if ratio < _MAIN_THRUST_RATIO:
         return 'MAIN_THRUST'
-    elif ratio < 0.85:
+    elif ratio < _MANEUVERING_RATIO:
         return 'MANEUVERING'
     return 'UTILITY_EXHAUST'
 

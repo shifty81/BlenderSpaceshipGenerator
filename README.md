@@ -44,6 +44,35 @@ This addon integrates directly with the EVEOFFLINE project:
   - Weapon hardpoints
   - Progressive module system for ship expansion
 
+- **Brick Taxonomy & LEGO Logic**:
+  - 18 brick types across 5 categories (Core, Hull, Function, Utility, Detail)
+  - Hardpoint declarations on every brick for snap-attach rules
+  - Scale hierarchy bands (primary, structural, detail)
+  - Grid snapping per ship class (0.5 m for shuttles up to 8 m for titans)
+  - Ship DNA JSON export for reproducible/saveable ships
+
+- **Spine-First Assembly Pipeline**:
+  1. Core hull (spine)
+  2. Cockpit / bridge
+  3. Major structures (wings)
+  4. Engines (archetype-varied)
+  5. Weapons & turrets
+  6. Detail modules
+  7. Interior (optional)
+  8. Hull taper / deform pass
+  9. Bevel + auto-smooth cleanup pass
+
+- **Engine Archetypes**:
+  - Main Thrust — big, recessed, with nozzle flare
+  - Maneuvering Thrusters — small, angled
+  - Utility Exhaust — flat vents
+  - Each archetype varies depth, radius, glow strength
+
+- **Hull Shaping**:
+  - Configurable hull taper for silhouette shaping
+  - Automatic bevel + auto-smooth cleanup pass
+  - Style-specific hull deformations (X4, Elite, EVE, NMS, factions)
+
 - **Interior Generation**:
   - FPV-ready interiors scaled for human exploration
   - Corridor networks connecting ship areas
