@@ -13,6 +13,8 @@ Complete start-to-finish guide for using the Blender Spaceship Generator with th
 4. [Import Ships from EVEOFFLINE JSON Data](#import-ships-from-eveoffline-json-data)
 5. [Export OBJ Files for the Atlas Engine](#export-obj-files-for-the-atlas-engine)
 6. [Place the Models in EVEOFFLINE](#place-the-models-in-eveoffline)
+7. [Generate Stations](#generate-stations)
+8. [Generate Asteroid Belts](#generate-asteroid-belts)
 7. [Test in Engine](#test-in-engine)
 8. [Batch Generation Script](#batch-generation-script)
 9. [Faction Style Reference](#faction-style-reference)
@@ -378,6 +380,110 @@ on the ship's `race` field.
 
 You can also manually select these styles from the **Style** dropdown in the
 Blender panel.
+
+---
+
+## Generate Stations
+
+The addon can generate procedural space stations matching EVEOFFLINE's station
+types and faction architectures.
+
+### Station Types
+
+| Type | Description | Scale |
+|------|-------------|-------|
+| **Industrial** | Manufacturing and production facilities | 80 units |
+| **Military** | Naval and defense installations | 100 units |
+| **Commercial** | Trade and commerce hubs | 90 units |
+| **Research** | Scientific research facilities | 60 units |
+| **Mining** | Ore refinement and mining support | 70 units |
+| **Astrahus** | Medium Upwell citadel | 50 units |
+| **Fortizar** | Large Upwell citadel | 100 units |
+| **Keepstar** | Extra-large Upwell citadel | 200 units |
+
+### Faction Architecture
+
+Each faction produces a distinct station visual:
+
+| Faction | Architecture | Features |
+|---------|-------------|----------|
+| **Solari** | Golden cathedral | Spires, domes, radial symmetry |
+| **Veyren** | Industrial blocks | Angular, cubic symmetry, minimal |
+| **Aurelian** | Organic domes | Spherical, organic curves |
+| **Keldari** | Rusted patchwork | Asymmetric, scaffolding, rough |
+
+### How to Generate
+
+1. In the **Spaceship** sidebar panel, scroll to **Station Generation**.
+2. Select the **Station Type** (Industrial, Military, Keepstar, etc.).
+3. Select the **Station Faction** (Solari, Veyren, Aurelian, Keldari).
+4. Set the **Random Seed** (same seed = same station).
+5. Click **Generate Station**.
+
+The station appears at the 3D cursor, organized in its own collection.
+
+### Export for EVEOFFLINE
+
+Select the station hub object, set the export path, and click
+**Export OBJ for Atlas** — the same workflow as ships.
+
+---
+
+## Generate Asteroid Belts
+
+The addon generates asteroid belts with all 16 EVEOFFLINE ore types and
+multiple belt configurations.
+
+### Ore Types
+
+All ore types from `data/universe/asteroid_visual_data.json` are supported:
+
+| Ore | Color | Security Level |
+|-----|-------|---------------|
+| Dustite | Brown-orange | Highsec |
+| Ferrite | Gray metallic | Highsec |
+| Ignaite | Red-brown | Highsec |
+| Crystite | Green crystalline | Highsec |
+| Shadite | Golden-brown | Highsec/Lowsec |
+| Corite | Blue-cyan | Highsec/Lowsec |
+| Lumine | Dark red | Lowsec |
+| Sangite | Bright red | Lowsec |
+| Glacite | Golden | Lowsec |
+| Densite | Light gray | Lowsec/Nullsec |
+| Voidite | Dark brown | Nullsec |
+| Spodumain | Silvery | Nullsec |
+| Pyranite | Purple | Nullsec |
+| Stellite | Green luminescent | Nullsec |
+| Cosmite | Orange-gold | Nullsec |
+| Nexorite | Cyan radioactive | Nullsec |
+
+### Belt Layouts
+
+| Layout | Shape | Default Count |
+|--------|-------|--------------|
+| **Semicircle** | Standard semicircular arc | 30 |
+| **Sphere** | Spherical distribution | 40 |
+| **Cluster** | Dense anomaly cluster | 50 |
+| **Ring** | Sparse outer ring | 25 |
+
+### How to Generate
+
+1. In the **Spaceship** sidebar panel, scroll to **Asteroid Belt Generation**.
+2. Select the **Belt Layout** (Semicircle, Sphere, Cluster, Ring).
+3. Select the **Primary Ore** type.
+4. Set the **Asteroid Count** (5–200).
+5. Set the **Random Seed**.
+6. Click **Generate Asteroid Belt**.
+
+Each asteroid gets:
+- Procedural irregular shape (icosphere + displacement)
+- Random rotation and size variation
+- PBR material matching the ore's color, roughness, and metallic values
+
+### Export for EVEOFFLINE
+
+Select the belt root empty, set the export path, and click
+**Export OBJ for Atlas**.
 
 ---
 

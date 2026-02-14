@@ -28,6 +28,8 @@ from . import ship_parts
 from . import interior_generator
 from . import module_system
 from . import atlas_exporter
+from . import station_generator
+from . import asteroid_generator
 
 
 class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
@@ -119,6 +121,78 @@ class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
         description="Directory to export OBJ files for the EVEOFFLINE asset pipeline",
         subtype='DIR_PATH',
         default=""
+    )
+
+    station_type: EnumProperty(
+        name="Station Type",
+        description="Type of station to generate",
+        items=[
+            ('INDUSTRIAL', "Industrial", "Manufacturing and production"),
+            ('MILITARY', "Military", "Naval and defense installation"),
+            ('COMMERCIAL', "Commercial", "Trade and commerce hub"),
+            ('RESEARCH', "Research", "Scientific research facility"),
+            ('MINING', "Mining", "Ore refinement and mining support"),
+            ('ASTRAHUS', "Astrahus", "Medium Upwell citadel"),
+            ('FORTIZAR', "Fortizar", "Large Upwell citadel"),
+            ('KEEPSTAR', "Keepstar", "Extra-large Upwell citadel"),
+        ],
+        default='INDUSTRIAL'
+    )
+
+    station_faction: EnumProperty(
+        name="Station Faction",
+        description="Faction style for the station",
+        items=[
+            ('SOLARI', "Solari", "Golden cathedral style"),
+            ('VEYREN', "Veyren", "Industrial block style"),
+            ('AURELIAN', "Aurelian", "Organic dome style"),
+            ('KELDARI', "Keldari", "Rusted patchwork style"),
+        ],
+        default='SOLARI'
+    )
+
+    belt_layout: EnumProperty(
+        name="Belt Layout",
+        description="Asteroid belt shape",
+        items=[
+            ('SEMICIRCLE', "Semicircle", "Standard semicircular belt"),
+            ('SPHERE', "Sphere", "Spherical distribution"),
+            ('CLUSTER', "Cluster", "Dense anomaly cluster"),
+            ('RING', "Ring", "Sparse outer ring"),
+        ],
+        default='SEMICIRCLE'
+    )
+
+    belt_ore_type: EnumProperty(
+        name="Primary Ore",
+        description="Primary ore type for the belt",
+        items=[
+            ('DUSTITE', "Dustite", "Brown-orange, common ore"),
+            ('FERRITE', "Ferrite", "Gray metallic ore"),
+            ('IGNAITE', "Ignaite", "Red-brown volcanic ore"),
+            ('CRYSTITE', "Crystite", "Green crystalline ore"),
+            ('SHADITE', "Shadite", "Golden-brown ore"),
+            ('CORITE', "Corite", "Blue-cyan icy ore"),
+            ('LUMINE', "Lumine", "Dark red dense ore"),
+            ('SANGITE', "Sangite", "Bright red metallic ore"),
+            ('GLACITE', "Glacite", "Golden valuable ore"),
+            ('DENSITE', "Densite", "Light gray banded ore"),
+            ('VOIDITE', "Voidite", "Dark nullsec ore"),
+            ('SPODUMAIN', "Spodumain", "Silvery reflective ore"),
+            ('PYRANITE', "Pyranite", "Purple rare ore"),
+            ('STELLITE', "Stellite", "Green luminescent ore"),
+            ('COSMITE', "Cosmite", "Orange-gold most valuable ore"),
+            ('NEXORITE', "Nexorite", "Cyan crystalline radioactive ore"),
+        ],
+        default='DUSTITE'
+    )
+
+    belt_count: IntProperty(
+        name="Asteroid Count",
+        description="Number of asteroids in the belt",
+        default=30,
+        min=5,
+        max=200
     )
 
 
@@ -226,6 +300,41 @@ class SPACESHIP_OT_export_obj(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class SPACESHIP_OT_generate_station(bpy.types.Operator):
+    """Generate a procedural space station"""
+    bl_idname = "mesh.generate_station"
+    bl_label = "Generate Station"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        props = context.scene.spaceship_props
+        station_generator.generate_station(
+            station_type=props.station_type,
+            faction=props.station_faction,
+            seed=props.seed,
+        )
+        self.report({'INFO'}, f"Generated {props.station_type} station ({props.station_faction})")
+        return {'FINISHED'}
+
+
+class SPACESHIP_OT_generate_asteroid_belt(bpy.types.Operator):
+    """Generate a procedural asteroid belt"""
+    bl_idname = "mesh.generate_asteroid_belt"
+    bl_label = "Generate Asteroid Belt"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        props = context.scene.spaceship_props
+        asteroid_generator.generate_asteroid_belt(
+            layout=props.belt_layout,
+            ore_types=[props.belt_ore_type],
+            count=props.belt_count,
+            seed=props.seed,
+        )
+        self.report({'INFO'}, f"Generated {props.belt_layout} belt with {props.belt_count} asteroids")
+        return {'FINISHED'}
+
+
 class SPACESHIP_PT_main_panel(bpy.types.Panel):
     """Main panel for spaceship generator"""
     bl_label = "Spaceship Generator"
@@ -260,6 +369,19 @@ class SPACESHIP_PT_main_panel(bpy.types.Panel):
         layout.prop(props, "eveoffline_export_path")
         layout.operator("mesh.export_eveoffline_obj", icon='EXPORT')
 
+        layout.separator()
+        layout.label(text="Station Generation:")
+        layout.prop(props, "station_type")
+        layout.prop(props, "station_faction")
+        layout.operator("mesh.generate_station", icon='WORLD')
+
+        layout.separator()
+        layout.label(text="Asteroid Belt Generation:")
+        layout.prop(props, "belt_layout")
+        layout.prop(props, "belt_ore_type")
+        layout.prop(props, "belt_count")
+        layout.operator("mesh.generate_asteroid_belt", icon='OUTLINER_OB_POINTCLOUD')
+
 
 # Registration
 classes = (
@@ -267,6 +389,8 @@ classes = (
     SPACESHIP_OT_generate,
     SPACESHIP_OT_import_eveoffline,
     SPACESHIP_OT_export_obj,
+    SPACESHIP_OT_generate_station,
+    SPACESHIP_OT_generate_asteroid_belt,
     SPACESHIP_PT_main_panel,
 )
 
@@ -285,10 +409,14 @@ def register():
     interior_generator.register()
     module_system.register()
     atlas_exporter.register()
+    station_generator.register()
+    asteroid_generator.register()
 
 
 def unregister():
     # Unregister submodules
+    asteroid_generator.unregister()
+    station_generator.unregister()
     atlas_exporter.unregister()
     module_system.unregister()
     interior_generator.unregister()

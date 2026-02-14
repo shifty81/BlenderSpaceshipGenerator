@@ -31,6 +31,8 @@ def test_addon_structure():
         'interior_generator.py',
         'module_system.py',
         'atlas_exporter.py',
+        'station_generator.py',
+        'asteroid_generator.py',
     ]
     
     all_exist = True
@@ -57,6 +59,8 @@ def test_file_syntax():
         'interior_generator.py',
         'module_system.py',
         'atlas_exporter.py',
+        'station_generator.py',
+        'asteroid_generator.py',
     ]
     
     all_valid = True
@@ -136,6 +140,8 @@ def test_register_functions():
         'interior_generator.py',
         'module_system.py',
         'atlas_exporter.py',
+        'station_generator.py',
+        'asteroid_generator.py',
     ]
     
     all_valid = True

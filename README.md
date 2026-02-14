@@ -12,6 +12,8 @@ This addon integrates directly with the EVEOFFLINE project:
 - **Export OBJ for Atlas Engine** — one-click export with correct axis orientation for the Atlas rendering pipeline.
 - **Four faction styles** — Solari (elegant), Veyren (angular), Aurelian (organic), Keldari (rugged) map directly to EVEOFFLINE's four factions.
 - **All ship classes** — Frigates through Titans, plus Industrials, Mining Barges, and Exhumers.
+- **Station generation** — procedural space stations matching EVEOFFLINE station types (Industrial, Military, Commercial, Research, Mining) and Upwell structures (Astrahus, Fortizar, Keepstar).
+- **Asteroid belt generation** — procedural asteroid belts with all 16 EVEOFFLINE ore types and 4 belt layouts (Semicircle, Sphere, Cluster, Ring).
 
 **→ [Full EVEOFFLINE Integration Guide](EVEOFFLINE_GUIDE.md)** — start-to-finish instructions for generating and exporting ships into the Atlas engine.
 
@@ -69,6 +71,18 @@ This addon integrates directly with the EVEOFFLINE project:
     - Veyren (Angular, utilitarian — shield tanking)
     - Aurelian (Sleek, organic — drones)
     - Keldari (Rugged, industrial — missiles)
+
+- **Station Generation**:
+  - NPC station types: Industrial, Military, Commercial, Research, Mining
+  - Upwell structures: Astrahus, Fortizar, Keepstar
+  - Faction-specific architecture (spires, domes, blocks, scaffolding)
+  - Docking bays and hangars
+
+- **Asteroid Belt Generation**:
+  - 16 ore types from EVEOFFLINE (Dustite through Nexorite)
+  - 4 belt layouts: Semicircle, Sphere, Cluster, Ring
+  - Procedural deformation for natural rocky shapes
+  - PBR materials matching ore visual data
 
 ## Installation
 
