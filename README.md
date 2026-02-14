@@ -17,6 +17,10 @@ This addon integrates directly with the EVEOFFLINE project:
 
 **→ [Full EVEOFFLINE Integration Guide](EVEOFFLINE_GUIDE.md)** — start-to-finish instructions for generating and exporting ships into the Atlas engine.
 
+**→ [Engine Integration Reference](ENGINE_INTEGRATION.md)** — data structures, JSON schemas, ECS mappings, and C++ pseudocode for implementing ship systems in the Atlas engine.
+
+**→ [Feature Specification](features.md)** — complete feature list, design rules, and implementation status.
+
 ## Features
 
 - **Multiple Ship Classes**: Generate ships from small shuttles to massive titans
