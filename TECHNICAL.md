@@ -11,10 +11,19 @@ BlenderSpaceshipGenerator/
 ├── ship_parts.py            # Generates individual ship components
 ├── interior_generator.py    # Creates interior spaces
 ├── module_system.py         # Handles attachable modules
+├── brick_system.py          # Brick taxonomy, grid, Ship DNA
+├── atlas_exporter.py        # EVEOFFLINE JSON import + OBJ export
+├── station_generator.py     # Procedural station generation
+├── asteroid_generator.py    # Asteroid belt generation
+├── texture_generator.py     # Procedural PBR materials
 ├── README.md                # User documentation
 ├── USAGE.md                 # Installation and usage guide
 ├── EXAMPLES.md              # Example configurations
-└── TECHNICAL.md             # This file
+├── TECHNICAL.md             # This file
+├── ENGINE_INTEGRATION.md    # Engine-facing data reference (for Atlas/EVEOFFLINE)
+├── features.md              # Feature specification and design rules
+├── EVEOFFLINE_GUIDE.md      # Start-to-finish EVEOFFLINE integration guide
+└── IMPLEMENTATION_SUMMARY.md # Implementation overview
 ```
 
 ## Module Descriptions
@@ -434,3 +443,9 @@ The addon uses these Blender Python API features:
 ## License and Attribution
 
 This addon is designed as an educational and creative tool. Users should be aware of the intellectual property associated with the inspirational games (X4, Elite Dangerous, Eve Online) and ensure their use complies with applicable licenses and terms.
+
+## Related Documentation
+
+- **[ENGINE_INTEGRATION.md](ENGINE_INTEGRATION.md)** — Ship DNA schemas, brick tables, ECS component mappings, turret custom properties, hull skinning pipeline, and all data formats needed to implement ship systems in the Atlas game engine.
+- **[features.md](features.md)** — Complete feature specification with design pillars, implementation status, and planned engine-side systems.
+- **[EVEOFFLINE_GUIDE.md](EVEOFFLINE_GUIDE.md)** — Step-by-step guide for importing EVEOFFLINE ship JSON and exporting OBJ models.
