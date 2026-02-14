@@ -1,16 +1,16 @@
 """
 Blender Spaceship Generator Addon
 Generates procedural spaceships with modular parts and interiors
-Inspired by X4, Elite Dangerous, and Eve Online
+Inspired by X4, Elite Dangerous, Eve Online, and the EVEOFFLINE project
 """
 
 bl_info = {
     "name": "Spaceship Generator",
     "author": "BlenderSpaceshipGenerator",
-    "version": (1, 0, 0),
+    "version": (2, 0, 0),
     "blender": (2, 80, 0),
     "location": "View3D > Sidebar > Spaceship",
-    "description": "Generate procedural spaceships with modular parts and interiors",
+    "description": "Generate procedural spaceships with EVEOFFLINE/Atlas integration",
     "category": "Add Mesh",
 }
 
@@ -20,12 +20,14 @@ from bpy.props import (
     BoolProperty,
     IntProperty,
     FloatProperty,
+    StringProperty,
 )
 
 from . import ship_generator
 from . import ship_parts
 from . import interior_generator
 from . import module_system
+from . import atlas_exporter
 
 
 class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
@@ -41,9 +43,15 @@ class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
             ('FRIGATE', "Frigate", "Medium combat/utility ship"),
             ('DESTROYER', "Destroyer", "Heavy combat ship"),
             ('CRUISER', "Cruiser", "Large multi-role ship"),
+            ('BATTLECRUISER', "Battlecruiser", "Heavy attack cruiser"),
             ('BATTLESHIP', "Battleship", "Heavy capital ship"),
             ('CARRIER', "Carrier", "Fleet carrier ship"),
+            ('DREADNOUGHT', "Dreadnought", "Siege capital ship"),
             ('CAPITAL', "Capital", "Largest class capital ship"),
+            ('TITAN', "Titan", "Supercapital flagship"),
+            ('INDUSTRIAL', "Industrial", "Cargo hauler"),
+            ('MINING_BARGE', "Mining Barge", "Mining vessel"),
+            ('EXHUMER', "Exhumer", "Advanced mining vessel"),
         ],
         default='FIGHTER'
     )
@@ -91,8 +99,26 @@ class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
             ('X4', "X4", "X4 Foundations style"),
             ('ELITE', "Elite Dangerous", "Elite Dangerous style"),
             ('EVE', "Eve Online", "Eve Online style"),
+            ('SOLARI', "Solari", "EVEOFFLINE Solari faction - golden, elegant"),
+            ('VEYREN', "Veyren", "EVEOFFLINE Veyren faction - angular, utilitarian"),
+            ('AURELIAN', "Aurelian", "EVEOFFLINE Aurelian faction - sleek, organic"),
+            ('KELDARI', "Keldari", "EVEOFFLINE Keldari faction - rugged, industrial"),
         ],
         default='MIXED'
+    )
+
+    eveoffline_json_path: StringProperty(
+        name="Ship JSON",
+        description="Path to an EVEOFFLINE ship JSON file to import",
+        subtype='FILE_PATH',
+        default=""
+    )
+
+    eveoffline_export_path: StringProperty(
+        name="Export Path",
+        description="Directory to export OBJ files for the EVEOFFLINE asset pipeline",
+        subtype='DIR_PATH',
+        default=""
     )
 
 
@@ -117,6 +143,86 @@ class SPACESHIP_OT_generate(bpy.types.Operator):
         )
         
         self.report({'INFO'}, f"Generated {props.ship_class} class spaceship")
+        return {'FINISHED'}
+
+
+class SPACESHIP_OT_import_eveoffline(bpy.types.Operator):
+    """Import ships from EVEOFFLINE JSON data and generate them"""
+    bl_idname = "mesh.import_eveoffline_ships"
+    bl_label = "Import from EVEOFFLINE JSON"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        props = context.scene.spaceship_props
+        json_path = bpy.path.abspath(props.eveoffline_json_path)
+
+        if not json_path or not json_path.endswith('.json'):
+            self.report({'ERROR'}, "Select a valid EVEOFFLINE ship JSON file")
+            return {'CANCELLED'}
+
+        import os
+        if not os.path.isfile(json_path):
+            self.report({'ERROR'}, f"File not found: {json_path}")
+            return {'CANCELLED'}
+
+        try:
+            ships = atlas_exporter.load_ship_data(json_path)
+        except Exception as e:
+            self.report({'ERROR'}, f"Failed to load JSON: {e}")
+            return {'CANCELLED'}
+
+        count = 0
+        for ship_id, ship_data in ships.items():
+            config = atlas_exporter.parse_ship_config(ship_data)
+            ship_generator.generate_spaceship(
+                ship_class=config['ship_class'],
+                seed=config['seed'],
+                generate_interior=config['generate_interior'],
+                module_slots=config['module_slots'],
+                hull_complexity=config['hull_complexity'],
+                symmetry=config['symmetry'],
+                style=config['style'],
+            )
+            count += 1
+
+        self.report({'INFO'}, f"Generated {count} ships from EVEOFFLINE data")
+        return {'FINISHED'}
+
+
+class SPACESHIP_OT_export_obj(bpy.types.Operator):
+    """Export the selected ship as OBJ for the EVEOFFLINE/Atlas engine"""
+    bl_idname = "mesh.export_eveoffline_obj"
+    bl_label = "Export OBJ for Atlas"
+    bl_options = {'REGISTER'}
+
+    def execute(self, context):
+        props = context.scene.spaceship_props
+        export_dir = bpy.path.abspath(props.eveoffline_export_path)
+
+        if not export_dir:
+            self.report({'ERROR'}, "Set an export directory first")
+            return {'CANCELLED'}
+
+        import os
+        os.makedirs(export_dir, exist_ok=True)
+
+        obj = context.active_object
+        if obj is None:
+            self.report({'ERROR'}, "Select a ship object to export")
+            return {'CANCELLED'}
+
+        filename = obj.name.replace(' ', '_') + '.obj'
+        filepath = os.path.join(export_dir, filename)
+
+        # Select all children too
+        bpy.ops.object.select_all(action='DESELECT')
+        obj.select_set(True)
+        for child in obj.children_recursive:
+            child.select_set(True)
+
+        atlas_exporter.export_obj(filepath)
+
+        self.report({'INFO'}, f"Exported to {filepath}")
         return {'FINISHED'}
 
 
@@ -147,11 +253,20 @@ class SPACESHIP_PT_main_panel(bpy.types.Panel):
         layout.separator()
         layout.operator("mesh.generate_spaceship", icon='MESH_CUBE')
 
+        layout.separator()
+        layout.label(text="EVEOFFLINE / Atlas Integration:")
+        layout.prop(props, "eveoffline_json_path")
+        layout.operator("mesh.import_eveoffline_ships", icon='IMPORT')
+        layout.prop(props, "eveoffline_export_path")
+        layout.operator("mesh.export_eveoffline_obj", icon='EXPORT')
+
 
 # Registration
 classes = (
     SpaceshipGeneratorProperties,
     SPACESHIP_OT_generate,
+    SPACESHIP_OT_import_eveoffline,
+    SPACESHIP_OT_export_obj,
     SPACESHIP_PT_main_panel,
 )
 
@@ -169,10 +284,12 @@ def register():
     ship_parts.register()
     interior_generator.register()
     module_system.register()
+    atlas_exporter.register()
 
 
 def unregister():
     # Unregister submodules
+    atlas_exporter.unregister()
     module_system.unregister()
     interior_generator.unregister()
     ship_parts.unregister()

@@ -30,6 +30,7 @@ def test_addon_structure():
         'ship_parts.py',
         'interior_generator.py',
         'module_system.py',
+        'atlas_exporter.py',
     ]
     
     all_exist = True
@@ -55,6 +56,7 @@ def test_file_syntax():
         'ship_parts.py',
         'interior_generator.py',
         'module_system.py',
+        'atlas_exporter.py',
     ]
     
     all_valid = True
@@ -133,6 +135,7 @@ def test_register_functions():
         'ship_parts.py',
         'interior_generator.py',
         'module_system.py',
+        'atlas_exporter.py',
     ]
     
     all_valid = True
