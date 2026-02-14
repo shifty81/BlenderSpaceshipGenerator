@@ -126,7 +126,7 @@ def generate_hull_material(style='MIXED', seed=0, weathering=0.0):
     noise.inputs['Detail'].default_value = 8.0
     links.new(tex_coord.outputs['Object'], noise.inputs['Vector'])
 
-    # Mix primary and secondary colours using noise
+    # Mix primary and secondary colors using noise
     color_mix = nodes.new(type='ShaderNodeMixRGB')
     color_mix.location = (0, 100)
     color_mix.blend_type = 'MIX'
@@ -258,7 +258,7 @@ def _apply_weathering(material, amount):
     weather_noise.inputs['Detail'].default_value = 12.0
     weather_noise.inputs['Roughness'].default_value = 0.8
 
-    # Colour ramp to sharpen weathering mask
+    # Color ramp to sharpen weathering mask
     ramp = nodes.new(type='ShaderNodeValToRGB')
     ramp.location = (0, -300)
     ramp.color_ramp.elements[0].position = 0.4
