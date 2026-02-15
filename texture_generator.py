@@ -281,7 +281,9 @@ def apply_textures_to_ship(ship_object, style='MIXED', seed=0,
     Apply procedural textures to all parts of a ship hierarchy.
 
     Walks the object hierarchy starting from *ship_object* and assigns
-    appropriate materials based on part names.
+    appropriate materials based on part names.  Each hull-category part
+    receives a slight per-component roughness/color variation so
+    individual components remain visually distinguishable.
 
     Args:
         ship_object: Root hull object of the ship
@@ -293,6 +295,24 @@ def apply_textures_to_ship(ship_object, style='MIXED', seed=0,
                                       weathering=weathering)
     accent_mat = generate_accent_material(style=style, seed=seed)
     engine_mat = generate_engine_material(style=style, seed=seed)
+
+    rng = random.Random(seed + 7)
+
+    def _varied_hull_mat(obj):
+        """Create a per-component hull material with slight variation."""
+        mat = hull_mat.copy()
+        mat.name = f"Hull_{style}_{obj.name}"
+        nodes = mat.node_tree.nodes
+        for node in nodes:
+            if node.type == 'BSDF_PRINCIPLED':
+                base_rough = node.inputs['Roughness'].default_value
+                node.inputs['Roughness'].default_value = max(
+                    0.1, min(1.0, base_rough + rng.uniform(-0.08, 0.08)))
+                base_metal = node.inputs['Metallic'].default_value
+                node.inputs['Metallic'].default_value = max(
+                    0.0, min(1.0, base_metal + rng.uniform(-0.05, 0.05)))
+                break
+        return mat
 
     def _assign(obj):
         if obj.type != 'MESH':
@@ -310,10 +330,11 @@ def apply_textures_to_ship(ship_object, style='MIXED', seed=0,
             else:
                 obj.data.materials.append(accent_mat)
         else:
+            varied = _varied_hull_mat(obj)
             if obj.data.materials:
-                obj.data.materials[0] = hull_mat
+                obj.data.materials[0] = varied
             else:
-                obj.data.materials.append(hull_mat)
+                obj.data.materials.append(varied)
 
     _assign(ship_object)
     for child in ship_object.children_recursive:

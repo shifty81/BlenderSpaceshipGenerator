@@ -4,6 +4,10 @@ Generates individual ship components (hull, cockpit, engines, wings, weapons, tu
 
 Engine generation supports three archetypes (MAIN_THRUST, MANEUVERING,
 UTILITY_EXHAUST) for visual variety defined in :mod:`brick_system`.
+
+Hull generation uses per-class shape profiles so that different ship classes
+produce distinctive silhouettes (e.g. wide/flat carriers vs long/narrow
+frigates).  A seed-driven vertex noise pass adds organic uniqueness.
 """
 
 import bpy
@@ -15,6 +19,36 @@ from . import brick_system
 
 # Maximum number of turret hardpoints any ship may have
 MAX_TURRET_HARDPOINTS = 10
+
+# ---------------------------------------------------------------------------
+# Per-class hull shape profiles
+# ---------------------------------------------------------------------------
+# Each profile defines (width, length, height) multipliers relative to the
+# ship scale so every class gets a distinctive silhouette.
+
+HULL_PROFILES = {
+    'SHUTTLE':       (0.50, 0.80, 0.40),
+    'FIGHTER':       (0.45, 1.10, 0.25),
+    'CORVETTE':      (0.50, 1.00, 0.30),
+    'FRIGATE':       (0.40, 1.20, 0.28),
+    'DESTROYER':     (0.45, 1.30, 0.30),
+    'CRUISER':       (0.50, 1.20, 0.32),
+    'BATTLECRUISER': (0.55, 1.25, 0.35),
+    'BATTLESHIP':    (0.60, 1.10, 0.38),
+    'CARRIER':       (0.80, 1.00, 0.25),
+    'DREADNOUGHT':   (0.55, 1.30, 0.40),
+    'CAPITAL':       (0.65, 1.20, 0.40),
+    'TITAN':         (0.60, 1.40, 0.35),
+    'INDUSTRIAL':    (0.60, 0.90, 0.50),
+    'MINING_BARGE':  (0.70, 0.80, 0.45),
+    'EXHUMER':       (0.65, 0.90, 0.40),
+    'EXPLORER':      (0.40, 1.10, 0.30),
+    'HAULER':        (0.70, 1.00, 0.50),
+    'EXOTIC':        (0.45, 1.00, 0.30),
+}
+
+# Default profile when ship_class is unknown
+_DEFAULT_PROFILE = (0.50, 1.00, 0.30)
 
 
 def _prefixed_name(prefix, name):
@@ -35,10 +69,13 @@ def create_mesh_object(name, verts, edges, faces):
 
 
 def generate_hull(segments=5, scale=1.0, complexity=1.0, symmetry=True, style='MIXED',
-                  naming_prefix=''):
+                  naming_prefix='', ship_class='FIGHTER', seed=0):
     """
     Generate the main hull of the spaceship
-    
+
+    Uses per-class hull profiles for distinctive silhouettes and applies
+    seed-driven vertex noise for organic uniqueness.
+
     Args:
         segments: Number of hull segments
         scale: Overall scale factor
@@ -46,14 +83,17 @@ def generate_hull(segments=5, scale=1.0, complexity=1.0, symmetry=True, style='M
         symmetry: Use symmetrical design
         style: Design style
         naming_prefix: Project naming prefix
+        ship_class: Ship class key used to select hull profile
+        seed: Random seed used for vertex noise
     """
     # Create base hull mesh
     bpy.ops.mesh.primitive_cube_add(size=1, location=(0, 0, 0))
     hull = bpy.context.active_object
     hull.name = _prefixed_name(naming_prefix, "Hull")
-    
-    # Scale to ship size
-    hull.scale = (scale * 0.5, scale, scale * 0.3)
+
+    # Use per-class profile for distinctive silhouettes
+    profile = HULL_PROFILES.get(ship_class, _DEFAULT_PROFILE)
+    hull.scale = (scale * profile[0], scale * profile[1], scale * profile[2])
     bpy.ops.object.transform_apply(scale=True)
     
     # Enter edit mode to modify geometry
@@ -91,18 +131,21 @@ def generate_hull(segments=5, scale=1.0, complexity=1.0, symmetry=True, style='M
         # Mixed style
         apply_mixed_style(hull, scale)
     
+    # Apply seed-driven vertex noise for organic uniqueness
+    _apply_hull_vertex_noise(hull, scale, seed, complexity)
+
     # Add smooth shading
     bpy.ops.object.shade_smooth()
-    
+
     # Add subdivision surface modifier for smoother look
     modifier = hull.modifiers.new(name="Subdivision", type='SUBSURF')
     modifier.levels = 1
     modifier.render_levels = 2
-    
+
     # Add edge split for hard edges
     edge_split = hull.modifiers.new(name="EdgeSplit", type='EDGE_SPLIT')
     edge_split.split_angle = math.radians(30)
-    
+
     return hull
 
 
@@ -205,6 +248,25 @@ def apply_nms_style(hull, scale):
     cast_mod.cast_type = 'SPHERE'
 
 
+def _apply_hull_vertex_noise(hull, scale, seed, complexity):
+    """Displace hull vertices slightly using seed-driven noise.
+
+    Each vertex is offset along its normal by a small random amount so
+    that every seed produces a visually unique hull surface.  The
+    displacement magnitude scales with *complexity* and *scale* to keep
+    the effect proportional.
+    """
+    rng = random.Random(seed)
+    magnitude = scale * 0.012 * complexity
+    mesh = hull.data
+    for v in mesh.vertices:
+        offset = rng.uniform(-magnitude, magnitude)
+        v.co.x += v.normal.x * offset
+        v.co.y += v.normal.y * offset
+        v.co.z += v.normal.z * offset
+    mesh.update()
+
+
 def generate_cockpit(scale=1.0, position=(0, 0, 0), ship_class='FIGHTER', style='MIXED',
                      naming_prefix=''):
     """
@@ -291,6 +353,11 @@ def generate_engines(count=2, scale=1.0, symmetry=True, style='MIXED', naming_pr
             # Add nozzle flare for main thrust engines
             if arch['has_nozzle_flare']:
                 _add_nozzle_flare(left_engine, engine_size, naming_prefix)
+            if arch.get('inner_cone'):
+                _add_inner_cone(left_engine, engine_size, naming_prefix)
+            if arch.get('exhaust_rings', 0) > 0:
+                _add_exhaust_rings(left_engine, engine_size,
+                                   arch['exhaust_rings'], naming_prefix)
 
             # Right engine
             bpy.ops.mesh.primitive_cylinder_add(
@@ -306,6 +373,11 @@ def generate_engines(count=2, scale=1.0, symmetry=True, style='MIXED', naming_pr
 
             if arch['has_nozzle_flare']:
                 _add_nozzle_flare(right_engine, engine_size, naming_prefix)
+            if arch.get('inner_cone'):
+                _add_inner_cone(right_engine, engine_size, naming_prefix)
+            if arch.get('exhaust_rings', 0) > 0:
+                _add_exhaust_rings(right_engine, engine_size,
+                                   arch['exhaust_rings'], naming_prefix)
     else:
         # Non-symmetric or odd count
         for i in range(count):
@@ -329,6 +401,11 @@ def generate_engines(count=2, scale=1.0, symmetry=True, style='MIXED', naming_pr
 
             if arch['has_nozzle_flare']:
                 _add_nozzle_flare(engine, engine_size, naming_prefix)
+            if arch.get('inner_cone'):
+                _add_inner_cone(engine, engine_size, naming_prefix)
+            if arch.get('exhaust_rings', 0) > 0:
+                _add_exhaust_rings(engine, engine_size,
+                                   arch['exhaust_rings'], naming_prefix)
 
     # Add glow material to engines (strength varies by archetype)
     for engine in engines:
@@ -365,6 +442,38 @@ def _add_nozzle_flare(engine_obj, engine_size, naming_prefix=''):
     flare.name = _prefixed_name(naming_prefix, f"{engine_obj.name}_Flare")
     flare.rotation_euler = (math.radians(90), 0, 0)
     flare.parent = engine_obj
+
+
+def _add_exhaust_rings(engine_obj, engine_size, ring_count, naming_prefix=''):
+    """Add torus exhaust rings around an engine for visual detail."""
+    loc = engine_obj.location
+    for r in range(ring_count):
+        ring_offset = -engine_size * (0.4 + r * 0.5)
+        bpy.ops.mesh.primitive_torus_add(
+            major_radius=engine_size * (1.05 + r * 0.05),
+            minor_radius=engine_size * 0.04,
+            location=(loc.x, loc.y + ring_offset, loc.z)
+        )
+        ring = bpy.context.active_object
+        ring.name = _prefixed_name(
+            naming_prefix, f"{engine_obj.name}_ExhaustRing_{r+1}")
+        ring.rotation_euler = (math.radians(90), 0, 0)
+        ring.parent = engine_obj
+
+
+def _add_inner_cone(engine_obj, engine_size, naming_prefix=''):
+    """Add an inner cone detail inside main thrust engines."""
+    loc = engine_obj.location
+    bpy.ops.mesh.primitive_cone_add(
+        radius1=engine_size * 0.5,
+        radius2=engine_size * 0.15,
+        depth=engine_size * 0.8,
+        location=(loc.x, loc.y - engine_size * 0.3, loc.z)
+    )
+    cone = bpy.context.active_object
+    cone.name = _prefixed_name(naming_prefix, f"{engine_obj.name}_InnerCone")
+    cone.rotation_euler = (math.radians(90), 0, 0)
+    cone.parent = engine_obj
 
 
 def generate_wings(scale=1.0, symmetry=True, style='MIXED', naming_prefix=''):

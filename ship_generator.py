@@ -253,7 +253,9 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
         complexity=hull_complexity,
         symmetry=symmetry,
         style=style,
-        naming_prefix=naming_prefix
+        naming_prefix=naming_prefix,
+        ship_class=ship_class,
+        seed=seed,
     )
     collection.objects.link(hull)
     placed_bricks.append({'type': 'STRUCTURAL_SPINE', 'pos': [0, 0, 0]})
@@ -358,6 +360,21 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
             })
 
     # ------------------------------------------------------------------
+    # Stage 6b – Surface detail (greebles)
+    # ------------------------------------------------------------------
+    greeble_count = max(2, config['hull_segments'])
+    greebles = generate_greeble_details(
+        hull, scale=scale, count=greeble_count, seed=seed,
+        naming_prefix=naming_prefix,
+    )
+    for greeble in greebles:
+        collection.objects.link(greeble)
+        placed_bricks.append({
+            'type': greeble.get('brick_type', 'PANEL'),
+            'pos': list(greeble.location),
+        })
+
+    # ------------------------------------------------------------------
     # Stage 7 – Interior (optional)
     # ------------------------------------------------------------------
     if generate_interior:
@@ -404,6 +421,66 @@ def generate_spaceship(ship_class='FIGHTER', seed=1, generate_interior=True,
 # ------------------------------------------------------------------
 # Post-processing helpers
 # ------------------------------------------------------------------
+
+
+# Greeble detail brick types and their associated shapes
+_GREEBLE_TYPES = ['PANEL', 'VENT', 'PIPE']
+
+
+def generate_greeble_details(hull, scale, count, seed, naming_prefix=''):
+    """Place small surface detail objects along the hull.
+
+    Distributes *count* greeble pieces (panels, vents, pipes) across the
+    hull surface to break up large flat areas and add visual complexity.
+    Uses the hull's bounding box to position details on the top and sides.
+
+    Args:
+        hull: The hull mesh object.
+        scale: Ship scale factor.
+        count: Number of greeble details to place.
+        seed: Random seed for reproducible placement.
+        naming_prefix: Project naming prefix.
+
+    Returns:
+        List of created greeble objects.
+    """
+    rng = random.Random(seed + 99)
+    greebles = []
+    detail_scale = scale * 0.04
+
+    half_w = scale * 0.4
+    half_l = scale * 0.8
+
+    for i in range(count):
+        brick_type = rng.choice(_GREEBLE_TYPES)
+        x_pos = rng.uniform(-half_w, half_w)
+        y_pos = rng.uniform(-half_l * 0.6, half_l * 0.5)
+        # Place on dorsal surface
+        z_pos = scale * 0.15
+
+        if brick_type == 'PANEL':
+            bpy.ops.mesh.primitive_cube_add(
+                size=detail_scale,
+                location=(x_pos, y_pos, z_pos),
+            )
+        elif brick_type == 'VENT':
+            bpy.ops.mesh.primitive_cube_add(
+                size=detail_scale * 0.8,
+                location=(x_pos, y_pos, z_pos),
+            )
+        else:  # PIPE
+            bpy.ops.mesh.primitive_cylinder_add(
+                radius=detail_scale * 0.15,
+                depth=detail_scale * 2,
+                location=(x_pos, y_pos, z_pos),
+            )
+
+        obj = bpy.context.active_object
+        obj.name = _prefixed_name(naming_prefix, f"Greeble_{brick_type}_{i+1}")
+        obj["brick_type"] = brick_type
+        greebles.append(obj)
+
+    return greebles
 
 
 def taper_hull(obj, axis='Y', factor=0.85):

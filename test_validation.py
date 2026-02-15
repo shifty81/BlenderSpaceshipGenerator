@@ -436,6 +436,156 @@ def test_engine_archetypes():
     return all_valid
 
 
+def test_hull_profiles():
+    """Test that ship_parts defines hull profiles for all ship classes"""
+    print("\nTesting hull shape profiles...")
+
+    addon_path = os.path.dirname(os.path.abspath(__file__))
+    sp_path = os.path.join(addon_path, 'ship_parts.py')
+    sg_path = os.path.join(addon_path, 'ship_generator.py')
+
+    with open(sp_path, 'r') as f:
+        sp_content = f.read()
+    with open(sg_path, 'r') as f:
+        sg_content = f.read()
+
+    all_valid = True
+
+    # Check HULL_PROFILES dict exists
+    if 'HULL_PROFILES' not in sp_content:
+        print("✗ HULL_PROFILES not found in ship_parts.py")
+        return False
+    print("✓ HULL_PROFILES dictionary found")
+
+    # Check that every ship class in SHIP_CONFIGS has a profile
+    tree = ast.parse(sg_content)
+    class_names = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id == 'SHIP_CONFIGS':
+                    if isinstance(node.value, ast.Dict):
+                        for k in node.value.keys:
+                            if isinstance(k, ast.Constant):
+                                class_names.append(k.value)
+
+    for cls in class_names:
+        if f"'{cls}'" in sp_content:
+            print(f"✓ HULL_PROFILES has entry for {cls}")
+        else:
+            print(f"✗ HULL_PROFILES missing entry for {cls}")
+            all_valid = False
+
+    return all_valid
+
+
+def test_vertex_noise():
+    """Test that ship_parts defines the vertex noise helper"""
+    print("\nTesting hull vertex noise...")
+
+    addon_path = os.path.dirname(os.path.abspath(__file__))
+    sp_path = os.path.join(addon_path, 'ship_parts.py')
+
+    with open(sp_path, 'r') as f:
+        content = f.read()
+
+    checks = {
+        'def _apply_hull_vertex_noise(': 'vertex noise helper function',
+        'ship_class': 'ship_class parameter in generate_hull',
+    }
+
+    all_valid = True
+    for pattern, description in checks.items():
+        if pattern in content:
+            print(f"✓ {description} found")
+        else:
+            print(f"✗ {description} not found")
+            all_valid = False
+
+    return all_valid
+
+
+def test_greeble_details():
+    """Test that ship_generator defines the greeble detail pass"""
+    print("\nTesting greeble detail pass...")
+
+    addon_path = os.path.dirname(os.path.abspath(__file__))
+    sg_path = os.path.join(addon_path, 'ship_generator.py')
+
+    with open(sg_path, 'r') as f:
+        content = f.read()
+
+    checks = {
+        'def generate_greeble_details(': 'greeble generator function',
+        '_GREEBLE_TYPES': 'greeble brick types list',
+        'Stage 6b': 'greeble stage in pipeline',
+    }
+
+    all_valid = True
+    for pattern, description in checks.items():
+        if pattern in content:
+            print(f"✓ {description} found")
+        else:
+            print(f"✗ {description} not found")
+            all_valid = False
+
+    return all_valid
+
+
+def test_enhanced_engine_details():
+    """Test that ship_parts has exhaust ring and inner cone helpers"""
+    print("\nTesting enhanced engine detail helpers...")
+
+    addon_path = os.path.dirname(os.path.abspath(__file__))
+    sp_path = os.path.join(addon_path, 'ship_parts.py')
+
+    with open(sp_path, 'r') as f:
+        content = f.read()
+
+    checks = {
+        'def _add_exhaust_rings(': 'exhaust rings helper',
+        'def _add_inner_cone(': 'inner cone helper',
+    }
+
+    all_valid = True
+    for pattern, description in checks.items():
+        if pattern in content:
+            print(f"✓ {description} found")
+        else:
+            print(f"✗ {description} not found")
+            all_valid = False
+
+    return all_valid
+
+
+def test_module_placement_zones():
+    """Test that module_system uses zone-based placement"""
+    print("\nTesting module placement zones...")
+
+    addon_path = os.path.dirname(os.path.abspath(__file__))
+    ms_path = os.path.join(addon_path, 'module_system.py')
+
+    with open(ms_path, 'r') as f:
+        content = f.read()
+
+    all_valid = True
+
+    if 'total_count' in content:
+        print("✓ total_count parameter for spacing found")
+    else:
+        print("✗ total_count parameter not found")
+        all_valid = False
+
+    # Zone-based placement should reference port/starboard or side
+    if 'side' in content or 'port' in content or 'starboard' in content:
+        print("✓ Zone-based side placement logic found")
+    else:
+        print("✗ Zone-based placement logic not found")
+        all_valid = False
+
+    return all_valid
+
+
 def run_tests():
     """Run all validation tests"""
     print("=" * 60)
@@ -454,6 +604,11 @@ def run_tests():
         ("Brick System", test_brick_system),
         ("Hull Taper & Cleanup", test_hull_taper_and_cleanup),
         ("Engine Archetypes", test_engine_archetypes),
+        ("Hull Shape Profiles", test_hull_profiles),
+        ("Hull Vertex Noise", test_vertex_noise),
+        ("Greeble Detail Pass", test_greeble_details),
+        ("Enhanced Engine Details", test_enhanced_engine_details),
+        ("Module Placement Zones", test_module_placement_zones),
     ]
     
     results = []
