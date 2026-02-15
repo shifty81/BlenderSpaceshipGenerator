@@ -296,7 +296,7 @@ def apply_textures_to_ship(ship_object, style='MIXED', seed=0,
     accent_mat = generate_accent_material(style=style, seed=seed)
     engine_mat = generate_engine_material(style=style, seed=seed)
 
-    rng = random.Random(seed + 7)
+    rng = random.Random(seed + 7)  # offset to decouple from other seed uses
 
     def _varied_hull_mat(obj):
         """Create a per-component hull material with slight variation."""

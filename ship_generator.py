@@ -444,7 +444,7 @@ def generate_greeble_details(hull, scale, count, seed, naming_prefix=''):
     Returns:
         List of created greeble objects.
     """
-    rng = random.Random(seed + 99)
+    rng = random.Random(seed + 99)  # offset to decouple from hull/engine seeds
     greebles = []
     detail_scale = scale * 0.04
 

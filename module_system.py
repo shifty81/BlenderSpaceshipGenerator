@@ -122,8 +122,10 @@ def create_module(module_type, scale=1.0, index=0, naming_prefix='',
     # Distribute modules in hull surface zones to avoid overlap.
     # Zone layout: alternate port/starboard sides along the hull length.
     total = max(total_count, 1)
-    t = (index + 0.5) / total  # 0..1 fractional position along hull
-    y_pos = scale * (0.4 - t * 0.8)  # spread fore-to-aft
+    t = (index + 0.5) / total          # 0..1 fractional position along hull
+    fore_offset = 0.4                   # forward-most position (fraction of scale)
+    length_span = 0.8                   # total fore-aft spread (fraction of scale)
+    y_pos = scale * (fore_offset - t * length_span)  # spread fore-to-aft
     side = 1 if index % 2 == 0 else -1
     x_pos = side * scale * 0.35
     z_pos = scale * 0.05  # slightly above centreline

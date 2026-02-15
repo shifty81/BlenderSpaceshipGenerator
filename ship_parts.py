@@ -248,6 +248,10 @@ def apply_nms_style(hull, scale):
     cast_mod.cast_type = 'SPHERE'
 
 
+# Base magnitude for seed-driven hull vertex noise (fraction of scale)
+_VERTEX_NOISE_BASE_MAGNITUDE = 0.012
+
+
 def _apply_hull_vertex_noise(hull, scale, seed, complexity):
     """Displace hull vertices slightly using seed-driven noise.
 
@@ -257,7 +261,7 @@ def _apply_hull_vertex_noise(hull, scale, seed, complexity):
     the effect proportional.
     """
     rng = random.Random(seed)
-    magnitude = scale * 0.012 * complexity
+    magnitude = scale * _VERTEX_NOISE_BASE_MAGNITUDE * complexity
     mesh = hull.data
     for v in mesh.vertices:
         offset = rng.uniform(-magnitude, magnitude)
@@ -447,8 +451,10 @@ def _add_nozzle_flare(engine_obj, engine_size, naming_prefix=''):
 def _add_exhaust_rings(engine_obj, engine_size, ring_count, naming_prefix=''):
     """Add torus exhaust rings around an engine for visual detail."""
     loc = engine_obj.location
+    base_offset = 0.4   # first ring distance (fraction of engine_size)
+    ring_spacing = 0.5   # spacing between successive rings
     for r in range(ring_count):
-        ring_offset = -engine_size * (0.4 + r * 0.5)
+        ring_offset = -engine_size * (base_offset + r * ring_spacing)
         bpy.ops.mesh.primitive_torus_add(
             major_radius=engine_size * (1.05 + r * 0.05),
             minor_radius=engine_size * 0.04,
