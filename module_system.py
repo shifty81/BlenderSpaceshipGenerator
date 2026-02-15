@@ -71,7 +71,9 @@ def generate_modules(count=2, scale=1.0, ship_class='FIGHTER', naming_prefix='')
     # Generate modules
     for i in range(count):
         module_type = random.choice(available_types)
-        module = create_module(module_type, scale, i, naming_prefix=naming_prefix)
+        module = create_module(module_type, scale, i,
+                               naming_prefix=naming_prefix,
+                               total_count=count)
         modules.append(module)
     
     return modules
@@ -98,30 +100,36 @@ def get_available_modules(ship_class):
         return list(MODULE_TYPES.keys())
 
 
-def create_module(module_type, scale=1.0, index=0, naming_prefix=''):
+def create_module(module_type, scale=1.0, index=0, naming_prefix='',
+                  total_count=1):
     """
     Create a single module
-    
+
     Args:
         module_type: Type of module to create
         scale: Ship scale factor
         index: Module index for positioning
         naming_prefix: Project naming prefix
-    
+        total_count: Total number of modules being placed (for spacing)
+
     Returns:
         Module object
     """
     config = MODULE_TYPES[module_type]
     module_scale = scale * config['scale_factor']
     module_name = _prefixed_name(naming_prefix, config['name'])
-    
-    # Calculate position (distributed along ship)
-    angle = (index / 4) * 2 * math.pi  # Distribute around ship
-    radius = scale * 0.4
-    x_pos = radius * math.cos(angle)
-    z_pos = radius * math.sin(angle)
-    y_pos = (index - 1) * scale * 0.3  # Spread along length
-    
+
+    # Distribute modules in hull surface zones to avoid overlap.
+    # Zone layout: alternate port/starboard sides along the hull length.
+    total = max(total_count, 1)
+    t = (index + 0.5) / total          # 0..1 fractional position along hull
+    fore_offset = 0.4                   # forward-most position (fraction of scale)
+    length_span = 0.8                   # total fore-aft spread (fraction of scale)
+    y_pos = scale * (fore_offset - t * length_span)  # spread fore-to-aft
+    side = 1 if index % 2 == 0 else -1
+    x_pos = side * scale * 0.35
+    z_pos = scale * 0.05  # slightly above centreline
+
     position = (x_pos, y_pos, z_pos)
     
     # Create module based on shape
