@@ -37,6 +37,9 @@ from . import render_setup
 from . import lod_generator
 from . import collision_generator
 from . import animation_system
+from . import damage_system
+from . import power_system
+from . import build_validator
 
 
 class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
@@ -719,10 +722,16 @@ def register():
     lod_generator.register()
     collision_generator.register()
     animation_system.register()
+    damage_system.register()
+    power_system.register()
+    build_validator.register()
 
 
 def unregister():
     # Unregister submodules
+    build_validator.unregister()
+    power_system.unregister()
+    damage_system.unregister()
     animation_system.unregister()
     collision_generator.unregister()
     lod_generator.unregister()
