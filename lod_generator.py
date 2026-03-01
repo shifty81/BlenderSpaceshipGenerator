@@ -6,9 +6,9 @@ so that game engines can swap geometry based on camera distance.
 
 LOD levels:
   LOD0 – full resolution (original mesh)
-  LOD1 – medium resolution (50 % polygons)
-  LOD2 – low resolution (25 % polygons)
-  LOD3 – minimal resolution (10 % polygons)
+  LOD1 – medium resolution (50% polygons)
+  LOD2 – low resolution (25% polygons)
+  LOD3 – minimal resolution (10% polygons)
 """
 
 import bpy
