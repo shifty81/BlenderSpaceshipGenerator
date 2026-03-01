@@ -115,6 +115,10 @@ for _cat, _types in _CATEGORIES_MAP.items():
 # Structural integrity timeout (frames) before unsupported section detaches
 DETACH_TIMEOUT = 60
 
+# Salvage condition range (fraction of max HP retained by recovered bricks)
+SALVAGE_CONDITION_MIN = 0.1
+SALVAGE_CONDITION_MAX = 0.8
+
 # Visual feedback states
 DAMAGE_STATES = {
     'NOMINAL': 'Normal operation',
@@ -389,7 +393,8 @@ class ShipDamageState:
         category = _BRICK_CATEGORY.get(entity.brick_type, 'DETAIL')
         chance = SALVAGE_DROP_CHANCE.get(category, 0.2)
         if self._rng.random() < chance:
-            condition = round(self._rng.uniform(0.1, 0.8), 2)
+            condition = round(self._rng.uniform(
+                SALVAGE_CONDITION_MIN, SALVAGE_CONDITION_MAX), 2)
             return SalvageEntity(entity.brick_type, entity.pos, condition)
         return None
 

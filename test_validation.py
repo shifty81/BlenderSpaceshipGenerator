@@ -1049,6 +1049,15 @@ def test_damage_system():
         print("✗ get_damage_summary returned unexpected result")
         all_valid = False
 
+    # Edge case: destroy spine to disconnect remaining bricks
+    events = state.apply_damage(0, 9999)
+    unsupported = state.get_unsupported_bricks()
+    if len(unsupported) > 0 or state.alive_count() < 3:
+        print("✓ Destroying spine disconnects remaining bricks")
+    else:
+        print("✗ Spine destruction did not cascade correctly")
+        all_valid = False
+
     return all_valid
 
 
@@ -1131,6 +1140,30 @@ def test_power_system():
         print("✓ get_power_summary returns correct structure")
     else:
         print("✗ get_power_summary returned unexpected result")
+        all_valid = False
+
+    # Edge case: no reactor — systems should disable when cap drains
+    no_reactor_dna = {
+        'class': 'FIGHTER',
+        'bricks': [
+            {'type': 'STRUCTURAL_SPINE', 'pos': [0, 0, 0]},
+            {'type': 'SHIELD_EMITTER', 'pos': [1, 0, 0]},
+        ]
+    }
+    drain_power = ps.ShipPowerState.from_ship_dna(no_reactor_dna)
+    if not drain_power.power_stable:
+        print("✓ No-reactor ship correctly reports unstable power")
+    else:
+        print("✗ No-reactor ship should report unstable power")
+        all_valid = False
+
+    # Drain and check disable
+    for _ in range(100):
+        drain_power.tick(dt=1.0)
+    if len(drain_power.disabled_ids) > 0:
+        print("✓ Non-essential systems disabled after capacitor drain")
+    else:
+        print("✗ Systems should be disabled after capacitor drain")
         all_valid = False
 
     # Check all 18 ship classes have capacitor size entries

@@ -78,6 +78,10 @@ _NEIGHBOUR_OFFSETS = [
     (0, 0, 1), (0, 0, -1),
 ]
 
+# Dot-product threshold for treating two direction vectors as aligned.
+# 0.9 allows ≈25° tolerance while rejecting perpendicular or opposing faces.
+DIRECTION_MATCH_THRESHOLD = 0.9
+
 # Direction vectors corresponding to each neighbour offset
 _OFFSET_DIRECTIONS = {
     (1, 0, 0): (1, 0, 0),
@@ -239,7 +243,7 @@ class BuildValidator:
         roles = []
         for hp in brick_def.get('hardpoints', []):
             hp_dir = tuple(hp.get('direction', (0, 0, 0)))
-            if _dot(hp_dir, direction) > 0.9:
+            if _dot(hp_dir, direction) > DIRECTION_MATCH_THRESHOLD:
                 roles.append(hp['role'])
         return roles
 
