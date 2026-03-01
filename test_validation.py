@@ -40,6 +40,9 @@ def test_addon_structure():
         'lod_generator.py',
         'collision_generator.py',
         'animation_system.py',
+        'damage_system.py',
+        'power_system.py',
+        'build_validator.py',
     ]
     
     all_exist = True
@@ -75,6 +78,9 @@ def test_file_syntax():
         'lod_generator.py',
         'collision_generator.py',
         'animation_system.py',
+        'damage_system.py',
+        'power_system.py',
+        'build_validator.py',
     ]
     
     all_valid = True
@@ -163,6 +169,9 @@ def test_register_functions():
         'lod_generator.py',
         'collision_generator.py',
         'animation_system.py',
+        'damage_system.py',
+        'power_system.py',
+        'build_validator.py',
     ]
     
     all_valid = True
@@ -959,6 +968,269 @@ def test_animation_system():
     return all_valid
 
 
+def test_damage_system():
+    """Test that damage_system.py has proper structure and functions"""
+    print("\nTesting damage system module...")
+
+    addon_path = os.path.dirname(os.path.abspath(__file__))
+    ds_path = os.path.join(addon_path, 'damage_system.py')
+
+    if not os.path.exists(ds_path):
+        print("✗ damage_system.py not found")
+        return False
+
+    valid, error = test_python_syntax(ds_path)
+    if not valid:
+        print(f"✗ damage_system.py has syntax error: {error}")
+        return False
+    print("✓ damage_system.py has valid syntax")
+
+    with open(ds_path, 'r') as f:
+        content = f.read()
+
+    checks = {
+        'HULL_WEIGHTS': 'hull influence weights dictionary',
+        'BRICK_HP': 'brick hit points dictionary',
+        'BRICK_MASS': 'brick mass dictionary',
+        'SALVAGE_DROP_CHANCE': 'salvage drop chance dictionary',
+        'DAMAGE_STATES': 'damage visual states dictionary',
+        'DETACH_TIMEOUT': 'detachment timeout constant',
+        'class BrickEntity': 'BrickEntity class',
+        'class SalvageEntity': 'SalvageEntity class',
+        'class ShipDamageState': 'ShipDamageState class',
+        'def from_ship_dna(': 'from_ship_dna constructor',
+        'def apply_damage(': 'apply_damage method',
+        'def rebuild_connections(': 'rebuild_connections method',
+        'def get_unsupported_bricks(': 'get_unsupported_bricks method',
+        'def tick(': 'tick method',
+        'def total_hull_weight(': 'total_hull_weight method',
+        'def get_damage_summary(': 'get_damage_summary method',
+        'def register()': 'register function',
+        'def unregister()': 'unregister function',
+    }
+
+    all_valid = True
+    for pattern, description in checks.items():
+        if pattern in content:
+            print(f"✓ {description} found")
+        else:
+            print(f"✗ {description} not found")
+            all_valid = False
+
+    # Functional test — import and exercise the module
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("damage_system", ds_path)
+    ds = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(ds)
+
+    bricks = [
+        {'type': 'STRUCTURAL_SPINE', 'pos': [0, 0, 0]},
+        {'type': 'REACTOR_CORE', 'pos': [0, 2, 0]},
+        {'type': 'ENGINE_BLOCK', 'pos': [0, -2, 0]},
+    ]
+    state = ds.ShipDamageState.from_ship_dna(bricks, grid_size=2.0, seed=1)
+    if state.alive_count() == 3:
+        print("✓ ShipDamageState.from_ship_dna round-trip works")
+    else:
+        print(f"✗ Expected 3 bricks, got {state.alive_count()}")
+        all_valid = False
+
+    events = state.apply_damage(0, 100)
+    if isinstance(events, list):
+        print("✓ apply_damage returns event list")
+    else:
+        print("✗ apply_damage did not return a list")
+        all_valid = False
+
+    summary = state.get_damage_summary()
+    if isinstance(summary, dict) and 'NOMINAL' in summary:
+        print("✓ get_damage_summary returns correct structure")
+    else:
+        print("✗ get_damage_summary returned unexpected result")
+        all_valid = False
+
+    return all_valid
+
+
+def test_power_system():
+    """Test that power_system.py has proper structure and functions"""
+    print("\nTesting power system module...")
+
+    addon_path = os.path.dirname(os.path.abspath(__file__))
+    ps_path = os.path.join(addon_path, 'power_system.py')
+
+    if not os.path.exists(ps_path):
+        print("✗ power_system.py not found")
+        return False
+
+    valid, error = test_python_syntax(ps_path)
+    if not valid:
+        print(f"✗ power_system.py has syntax error: {error}")
+        return False
+    print("✓ power_system.py has valid syntax")
+
+    with open(ps_path, 'r') as f:
+        content = f.read()
+
+    checks = {
+        'POWER_GENERATION': 'power generation dictionary',
+        'POWER_CONSUMPTION': 'power consumption dictionary',
+        'CAPACITOR_SIZE': 'capacitor size per ship class',
+        'NON_ESSENTIAL_TYPES': 'non-essential system types',
+        'class PowerComponent': 'PowerComponent class',
+        'class ShipPowerState': 'ShipPowerState class',
+        'def from_ship_dna(': 'from_ship_dna constructor',
+        'def from_damage_state(': 'from_damage_state constructor',
+        'def tick(': 'tick method',
+        'def sync_with_damage_state(': 'sync_with_damage_state method',
+        'def get_power_summary(': 'get_power_summary method',
+        'def total_generation(': 'total_generation property',
+        'def total_consumption(': 'total_consumption property',
+        'def capacitor_fraction(': 'capacitor_fraction property',
+        'def register()': 'register function',
+        'def unregister()': 'unregister function',
+    }
+
+    all_valid = True
+    for pattern, description in checks.items():
+        if pattern in content:
+            print(f"✓ {description} found")
+        else:
+            print(f"✗ {description} not found")
+            all_valid = False
+
+    # Functional test
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("power_system", ps_path)
+    ps = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(ps)
+
+    dna = {
+        'class': 'CRUISER',
+        'bricks': [
+            {'type': 'STRUCTURAL_SPINE', 'pos': [0, 0, 0]},
+            {'type': 'REACTOR_CORE', 'pos': [0, 2, 0]},
+            {'type': 'ENGINE_BLOCK', 'pos': [0, -2, 0]},
+        ]
+    }
+    power = ps.ShipPowerState.from_ship_dna(dna)
+    if power.total_generation == 100.0:
+        print("✓ Reactor generates 100 MW")
+    else:
+        print(f"✗ Expected 100.0 MW generation, got {power.total_generation}")
+        all_valid = False
+
+    if power.power_stable:
+        print("✓ Power is stable with reactor")
+    else:
+        print("✗ Power should be stable with reactor present")
+        all_valid = False
+
+    summary = power.get_power_summary()
+    if isinstance(summary, dict) and 'net_power' in summary:
+        print("✓ get_power_summary returns correct structure")
+    else:
+        print("✗ get_power_summary returned unexpected result")
+        all_valid = False
+
+    # Check all 18 ship classes have capacitor size entries
+    bs_path = os.path.join(addon_path, 'brick_system.py')
+    spec2 = importlib.util.spec_from_file_location("brick_system", bs_path)
+    bs = importlib.util.module_from_spec(spec2)
+    spec2.loader.exec_module(bs)
+
+    for ship_class in bs.GRID_SIZES:
+        if ship_class in ps.CAPACITOR_SIZE:
+            print(f"✓ CAPACITOR_SIZE has entry for {ship_class}")
+        else:
+            print(f"✗ CAPACITOR_SIZE missing entry for {ship_class}")
+            all_valid = False
+
+    return all_valid
+
+
+def test_build_validator():
+    """Test that build_validator.py has proper structure and functions"""
+    print("\nTesting build validator module...")
+
+    addon_path = os.path.dirname(os.path.abspath(__file__))
+    bv_path = os.path.join(addon_path, 'build_validator.py')
+
+    if not os.path.exists(bv_path):
+        print("✗ build_validator.py not found")
+        return False
+
+    valid, error = test_python_syntax(bv_path)
+    if not valid:
+        print(f"✗ build_validator.py has syntax error: {error}")
+        return False
+    print("✓ build_validator.py has valid syntax")
+
+    with open(bv_path, 'r') as f:
+        content = f.read()
+
+    checks = {
+        'COMPATIBLE_ROLES': 'compatible roles set',
+        'class ValidationResult': 'ValidationResult class',
+        'class BuildValidator': 'BuildValidator class',
+        'def validate_placement(': 'validate_placement method',
+        'def place_brick(': 'place_brick method',
+        'def remove_brick(': 'remove_brick method',
+        'def check_connectivity(': 'check_connectivity method',
+        'def check_power_connectivity(': 'check_power_connectivity method',
+        'def from_ship_dna(': 'from_ship_dna constructor',
+        'def register()': 'register function',
+        'def unregister()': 'unregister function',
+    }
+
+    all_valid = True
+    for pattern, description in checks.items():
+        if pattern in content:
+            print(f"✓ {description} found")
+        else:
+            print(f"✗ {description} not found")
+            all_valid = False
+
+    # Functional test
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("build_validator", bv_path)
+    bv = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(bv)
+
+    bs_path = os.path.join(addon_path, 'brick_system.py')
+    spec2 = importlib.util.spec_from_file_location("brick_system", bs_path)
+    bs = importlib.util.module_from_spec(spec2)
+    spec2.loader.exec_module(bs)
+
+    validator = bv.BuildValidator(grid_size=2.0, brick_types=bs.BRICK_TYPES)
+
+    # First brick always valid
+    r = validator.validate_placement('STRUCTURAL_SPINE', (0, 0, 0))
+    if r.valid:
+        print("✓ First spine placement is valid")
+    else:
+        print(f"✗ First spine placement should be valid: {r.errors}")
+        all_valid = False
+    validator.place_brick('STRUCTURAL_SPINE', (0, 0, 0))
+
+    # Occupied cell should be invalid
+    r = validator.validate_placement('HULL_PLATE', (0, 0, 0))
+    if not r.valid:
+        print("✓ Occupied cell correctly rejected")
+    else:
+        print("✗ Occupied cell should be invalid")
+        all_valid = False
+
+    # Connectivity check
+    if validator.check_connectivity():
+        print("✓ check_connectivity works")
+    else:
+        print("✗ check_connectivity failed")
+        all_valid = False
+
+    return all_valid
+
+
 def run_tests():
     """Run all validation tests"""
     print("=" * 60)
@@ -991,6 +1263,9 @@ def run_tests():
         ("LOD Generator", test_lod_generator),
         ("Collision Generator", test_collision_generator),
         ("Animation System", test_animation_system),
+        ("Damage System", test_damage_system),
+        ("Power System", test_power_system),
+        ("Build Validator", test_build_validator),
     ]
     
     results = []

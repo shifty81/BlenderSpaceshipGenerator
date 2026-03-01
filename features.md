@@ -605,16 +605,16 @@ the SDF hull skin wraps around them automatically.
 - [x] LOD generation pipeline (4 levels, per-class switch distances)
 - [x] Collision mesh generation (convex hull, box, multi-convex)
 - [x] Animation system (turret rotation, bay doors, landing gear, radar spin)
+- [x] Damage propagation system (brick HP, structural integrity, detachment cascade)
+- [x] Salvage and brick recovery (drop chance per category, condition roll)
+- [x] Power flow simulation (generation/consumption, capacitor, system disable)
+- [x] Structural integrity checks (spine connectivity, BFS flood-fill)
+- [x] Player build mode with snap validation (grid, hardpoint, overlap, connectivity)
+- [x] ECS component system — Python reference (BrickEntity, PowerComponent, ShipDamageState)
 
 ### 🔲 Planned (Engine-Side)
 
-- [ ] ECS component system (BrickComponent, PowerComponent, etc.)
 - [ ] Runtime SDF hull meshing
-- [ ] Damage propagation system
-- [ ] Salvage and brick recovery
-- [ ] Player build mode with snap validation
-- [ ] Power flow simulation
-- [ ] Structural integrity checks
 
 > **ECS structs and system pseudocode →**
 > [ENGINE_INTEGRATION.md §10–§12](ENGINE_INTEGRATION.md#10-ecs-component-mapping)
