@@ -1,12 +1,12 @@
-# NovaForge Implementation Plan
+# AtlasForge Generator Implementation Plan
 
-Comprehensive implementation roadmap for evolving the BlenderSpaceshipGenerator
-into the full **NovaForge Generator** — a seed-deterministic, batch-ready
-procedural content generation pipeline for the
-[NovaForge](https://github.com/shifty81/NovaForge) PVE space simulator.
+Comprehensive implementation roadmap for evolving this addon
+into the full **AtlasForge Generator** — a seed-deterministic, batch-ready
+procedural content generation (PCG) pipeline that can be integrated into
+any game project requiring procedural 3D assets.
 
-> This plan was distilled from the design discussion captured in `latest.txt`
-> and represents the agreed-upon direction for the project.
+> This plan represents the direction for the project as an engine-agnostic
+> PCG tool that can be merged and adapted to specific projects.
 
 ---
 
@@ -22,23 +22,24 @@ procedural content generation pipeline for the
 8. [Phase 6 — Environmental Propagation & Debug Tools](#8-phase-6--environmental-propagation--debug-tools)
 9. [Phase 7 — Addon Update System](#9-phase-7--addon-update-system)
 10. [Directory Structure (Target)](#10-directory-structure-target)
-11. [Integration Points with NovaForge Repo](#11-integration-points-with-novaforge-repo)
+11. [Integration Points with Projects](#11-integration-points-with-projects)
 
 ---
 
 ## 1. Vision
 
-The BlenderSpaceshipGenerator already handles procedural ship, station, and
-asteroid generation.  The next evolution turns it into the **NovaForge
+This addon already handles procedural ship, station, and
+asteroid generation.  The next evolution turns it into the **AtlasForge
 Generator** — a single-command pipeline that can produce an entire playable
-universe:
+universe of assets:
 
 ```
 Galaxy → Systems → Planets → Stations → Ships → Characters
 ```
 
-Every object is seed-deterministic and JSON-linked so the Atlas engine can
-place, simulate, and modify assets at runtime.
+Every object is seed-deterministic and JSON-linked so any game engine can
+place, simulate, and modify assets at runtime. The tool is designed to be
+merged into specific projects and customized for their needs.
 
 ---
 
@@ -56,7 +57,7 @@ place, simulate, and modify assets at runtime.
 - Procedural PBR textures with weathering
 - Station generation (8 types, 4 faction architectures)
 - Asteroid belt generation (16 ore types, 4 layouts)
-- NovaForge JSON import and OBJ export for Atlas engine
+- Project JSON import and OBJ export for game engines
 - LOD generation, collision meshes, animation system
 - Damage propagation, power flow simulation, build validator
 
@@ -74,8 +75,6 @@ place, simulate, and modify assets at runtime.
 - Save / load state serialization
 - Galaxy-wide environmental propagation
 - Addon update system
-
----
 
 ## 3. Phase 1 — Full PCG Pipeline (Python + Blender)
 
@@ -151,8 +150,8 @@ blender --background --python scripts/generate_ship_blender.py -- \
 
 ## 4. Phase 2 — C++ Integration Layer
 
-**Goal:** Expose the NovaForge C++ procedural hull, texture, and style systems
-to the Python pipeline via pybind11.
+**Goal:** Expose C++ procedural hull, texture, and style systems
+to the Python pipeline via pybind11 for enhanced performance.
 
 ### Headers to Integrate
 
@@ -332,14 +331,14 @@ enabling specialised deep-atmosphere, gas-mining, and lava-harvesting roles.
 
 ## 9. Phase 7 — Addon Update System
 
-**Goal:** Keep the Blender addon evergreen as NovaForge evolves.
+**Goal:** Keep the Blender addon evergreen as projects evolve.
 
 | Feature | Description |
 |---------|-------------|
 | **Auto-import templates** | Load new JSON/YAML templates from a central directory or remote URL |
 | **Versioned generators** | Each generator module carries a version; old projects specify version in metadata |
 | **"Check for Updates" button** | Blender UI button fetches latest templates and merges into local addon |
-| **Manual override protection** | Objects with `nf_manual_override = True` are skipped by procedural regeneration |
+| **Manual override protection** | Objects with `af_manual_override = True` are skipped by procedural regeneration |
 
 ---
 
@@ -348,7 +347,7 @@ enabling specialised deep-atmosphere, gas-mining, and lava-harvesting roles.
 When fully implemented, the repository will look like:
 
 ```
-NovaForgeGenerator/
+AtlasForgeGenerator/
 ├── __init__.py                   # Blender addon entry point
 ├── ship_generator.py             # (existing) ship generation
 ├── ship_parts.py                 # (existing) ship components
@@ -359,7 +358,7 @@ NovaForgeGenerator/
 ├── station_generator.py          # (existing) station generation
 ├── asteroid_generator.py         # (existing) asteroid belts
 ├── texture_generator.py          # (existing) procedural PBR materials
-├── novaforge_importer.py         # (existing) NovaForge JSON import
+├── novaforge_importer.py         # (existing) project JSON import
 ├── render_setup.py               # (existing) catalog render setup
 ├── lod_generator.py              # (existing) LOD generation
 ├── collision_generator.py        # (existing) collision meshes
@@ -403,29 +402,29 @@ NovaForgeGenerator/
 
 ---
 
-## 11. Integration Points with NovaForge Repo
+## 11. Integration Points with Projects
 
-This generator is designed to feed the
-[NovaForge](https://github.com/shifty81/NovaForge) game project.  Key
-touchpoints:
+This generator is designed to be merged into any game project requiring
+procedural 3D assets.  Key integration touchpoints:
 
-| NovaForge Path | Generator Output |
+| Project Path | Generator Output |
 |----------------|-----------------|
-| `data/ships/*.json` | Ship metadata consumed by `novaforge_importer.py` |
+| `data/ships/*.json` | Ship metadata consumed by `project_importer.py` |
 | `data/ships/obj_models/` | OBJ meshes exported by `atlas_exporter.py` |
-| `cpp_server/include/pcg/hull_mesher.h` | C++ hull meshing (Phase 2 pybind11) |
-| `cpp_server/include/pcg/pcg_asset_style.h` | Style & deformation hooks |
-| `cpp_server/include/pcg/procedural_texture_generator.h` | Texture param generation |
-| `cpp_server/include/pcg/character_mesh_system.h` | Character generation |
-| `cpp_client/assets/reference_models/modules/` | Modular OBJ parts with hardpoints |
+| `include/pcg/hull_mesher.h` | C++ hull meshing (Phase 2 pybind11) |
+| `include/pcg/pcg_asset_style.h` | Style & deformation hooks |
+| `include/pcg/procedural_texture_generator.h` | Texture param generation |
+| `include/pcg/character_mesh_system.h` | Character generation |
+| `assets/reference_models/modules/` | Modular OBJ parts with hardpoints |
 | `schemas/atlas.build.v1.json` | Build manifest validation |
 
 ### Workflow
 
-1. Define or update ship/station/planet JSON in the NovaForge `data/` directory.
-2. Run the batch generator to produce OBJ meshes, textures, LODs, and metadata.
-3. Place outputs into the NovaForge asset directories.
-4. The Atlas engine loads assets at runtime using the JSON metadata for
+1. Merge this repository as a tool into your project.
+2. Define or update ship/station/planet JSON in your project's `data/` directory.
+3. Run the batch generator to produce OBJ meshes, textures, LODs, and metadata.
+4. Place outputs into your project's asset directories.
+5. Your game engine loads assets at runtime using the JSON metadata for
    placement, simulation, and rendering.
 
 ---

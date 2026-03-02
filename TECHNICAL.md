@@ -2,17 +2,17 @@
 
 ## Architecture Overview
 
-The Blender Spaceship Generator is designed as a modular addon with clear separation of concerns:
+The AtlasForge Generator is designed as a modular addon with clear separation of concerns:
 
 ```
-BlenderSpaceshipGenerator/
+AtlasForgeGenerator/
 ├── __init__.py              # Main addon entry, UI, registration
 ├── ship_generator.py        # Orchestrates ship generation
 ├── ship_parts.py            # Generates individual ship components
 ├── interior_generator.py    # Creates interior spaces
 ├── module_system.py         # Handles attachable modules
 ├── brick_system.py          # Brick taxonomy, grid, Ship DNA
-├── atlas_exporter.py        # EVEOFFLINE JSON import + OBJ export
+├── atlas_exporter.py        # JSON import + OBJ export
 ├── station_generator.py     # Procedural station generation
 ├── asteroid_generator.py    # Asteroid belt generation
 ├── texture_generator.py     # Procedural PBR materials
@@ -20,11 +20,11 @@ BlenderSpaceshipGenerator/
 ├── USAGE.md                 # Installation and usage guide
 ├── EXAMPLES.md              # Example configurations
 ├── TECHNICAL.md             # This file
-├── ENGINE_INTEGRATION.md    # Engine-facing data reference (for Atlas/EVEOFFLINE)
+├── ENGINE_INTEGRATION.md    # Engine-facing data reference
 ├── features.md              # Feature specification and design rules
-├── EVEOFFLINE_GUIDE.md      # Start-to-finish EVEOFFLINE integration guide
+├── EVEOFFLINE_GUIDE.md      # Start-to-finish project integration guide
 ├── IMPLEMENTATION_SUMMARY.md # Implementation overview
-├── NOVAFORGE_PLAN.md        # Phased roadmap for full NovaForge PCG pipeline
+├── NOVAFORGE_PLAN.md        # Phased roadmap for full PCG pipeline
 └── latest.txt               # Original design discussion (reference material)
 ```
 
@@ -266,8 +266,8 @@ Scene Collection
 
 ## Object Hierarchy
 
-When a naming prefix is set (e.g. `EVEOFFLINE`), every generated element
-name is prepended with `EVEOFFLINE_`.  Without a prefix the names remain
+When a naming prefix is set (e.g. `ATLASFORGE`), every generated element
+name is prepended with `ATLASFORGE_`.  Without a prefix the names remain
 unchanged.
 
 ```
@@ -448,6 +448,6 @@ This addon is designed as an educational and creative tool. Users should be awar
 
 ## Related Documentation
 
-- **[ENGINE_INTEGRATION.md](ENGINE_INTEGRATION.md)** — Ship DNA schemas, brick tables, ECS component mappings, turret custom properties, hull skinning pipeline, and all data formats needed to implement ship systems in the Atlas game engine.
+- **[ENGINE_INTEGRATION.md](ENGINE_INTEGRATION.md)** — Ship DNA schemas, brick tables, ECS component mappings, turret custom properties, hull skinning pipeline, and all data formats needed to implement ship systems in game engines.
 - **[features.md](features.md)** — Complete feature specification with design pillars, implementation status, and planned engine-side systems.
-- **[EVEOFFLINE_GUIDE.md](EVEOFFLINE_GUIDE.md)** — Step-by-step guide for importing EVEOFFLINE ship JSON and exporting OBJ models.
+- **[EVEOFFLINE_GUIDE.md](EVEOFFLINE_GUIDE.md)** — Step-by-step guide for importing project ship JSON and exporting OBJ models.

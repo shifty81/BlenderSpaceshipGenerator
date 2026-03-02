@@ -1,7 +1,7 @@
-# EVEOFFLINE / Atlas Engine Integration Guide
+# Project Integration Guide
 
-Complete start-to-finish guide for using the Blender Spaceship Generator with the
-[EVEOFFLINE](https://github.com/shifty81/EVEOFFLINE) project and its custom Atlas engine.
+Complete start-to-finish guide for using the AtlasForge Generator with
+any game project and its custom engine.
 
 ---
 
@@ -10,9 +10,9 @@ Complete start-to-finish guide for using the Blender Spaceship Generator with th
 1. [Prerequisites](#prerequisites)
 2. [Install the Addon in Blender](#install-the-addon-in-blender)
 3. [Generate a Ship Manually](#generate-a-ship-manually)
-4. [Import Ships from EVEOFFLINE JSON Data](#import-ships-from-eveoffline-json-data)
-5. [Export OBJ Files for the Atlas Engine](#export-obj-files-for-the-atlas-engine)
-6. [Place the Models in EVEOFFLINE](#place-the-models-in-eveoffline)
+4. [Import Ships from Project JSON Data](#import-ships-from-project-json-data)
+5. [Export OBJ Files for Your Engine](#export-obj-files-for-your-engine)
+6. [Place the Models in Your Project](#place-the-models-in-your-project)
 7. [Generate Stations](#generate-stations)
 8. [Generate Asteroid Belts](#generate-asteroid-belts)
 9. [Test in Engine](#test-in-engine)
@@ -27,10 +27,10 @@ Complete start-to-finish guide for using the Blender Spaceship Generator with th
 | Requirement | Version |
 |------------|---------|
 | **Blender** | 2.80 or higher (3.x / 4.x recommended) |
-| **EVEOFFLINE** | Latest `main` branch from [GitHub](https://github.com/shifty81/EVEOFFLINE) |
+| **Your Project** | Latest version with `data/ships/` directory |
 | **This addon** | Clone or download this repository |
 
-Make sure your EVEOFFLINE project is built and the `data/ships/` directory
+Make sure your project is set up and the `data/ships/` directory
 contains the ship JSON files (frigates.json, destroyers.json, etc.).
 
 ---
@@ -50,21 +50,21 @@ Or download as a ZIP from the GitHub releases page.
 1. Open **Blender**.
 2. Go to **Edit → Preferences → Add-ons**.
 3. Click **Install…** in the top-right corner.
-4. Navigate to the `BlenderSpaceshipGenerator` folder (or the downloaded ZIP).
+4. Navigate to the `AtlasForgeGenerator` folder (or the downloaded ZIP).
 5. Click **Install Add-on**.
 
 ### Step 3 — Enable
 
-1. In the Add-ons list, search for **"Spaceship Generator"**.
+1. In the Add-ons list, search for **"AtlasForge Generator"**.
 2. Check the checkbox next to it to enable.
-3. The **Spaceship** tab now appears in the 3D Viewport sidebar.
+3. The **AtlasForge** tab now appears in the 3D Viewport sidebar.
 
 ### Step 4 — Verify
 
 1. In the 3D Viewport, press **N** to open the sidebar.
-2. Click the **Spaceship** tab.
+2. Click the **AtlasForge** tab.
 3. You should see the full panel with Ship Configuration, Generation Options,
-   and the **EVEOFFLINE / Atlas Integration** section at the bottom.
+   and the **AtlasForge Export** section at the bottom.
 
 ---
 
@@ -74,12 +74,12 @@ This is the simplest path — generate a ship from the UI and export it.
 
 ### Step 1 — Configure
 
-In the **Spaceship** sidebar panel:
+In the **AtlasForge** sidebar panel:
 
-| Setting | Recommended for EVEOFFLINE |
+| Setting | Recommended |
 |---------|---------------------------|
 | **Ship Class** | Pick any (Frigate, Cruiser, Titan, etc.) |
-| **Style** | Pick an EVEOFFLINE faction: **Solari**, **Veyren**, **Aurelian**, or **Keldari** |
+| **Style** | Pick a faction: **Solari**, **Veyren**, **Aurelian**, or **Keldari** |
 | **Random Seed** | Use the `generation_seed` from your ship JSON, or any number |
 | **Generate Interior** | Enable for FPV testing, disable for faster export |
 | **Module Slots** | 2–5 for subcapitals, 5–10 for capitals |
@@ -99,18 +99,18 @@ Click **Generate Spaceship**. The ship appears at the 3D cursor.
 
 ---
 
-## Import Ships from EVEOFFLINE JSON Data
+## Import Ships from Project JSON Data
 
 Instead of configuring each ship manually, you can import directly from
-EVEOFFLINE's ship data files. The addon reads the JSON, extracts the faction,
+your project's ship data files. The addon reads the JSON, extracts the faction,
 class, seed, slot counts, and hardpoint data, and generates matching ships.
 
 ### Step 1 — Locate Your Ship JSON
 
-Your EVEOFFLINE project structure:
+Your project structure:
 
 ```
-EVEOFFLINE/
+{project}/
 └── data/
     └── ships/
         ├── frigates.json
@@ -131,15 +131,15 @@ EVEOFFLINE/
 
 ### Step 2 — Set the JSON Path
 
-In the **EVEOFFLINE / Atlas Integration** section of the sidebar panel:
+In the **AtlasForge Export** section of the sidebar panel:
 
 1. Click the folder icon next to **Ship JSON**.
-2. Browse to your EVEOFFLINE project's `data/ships/` directory.
+2. Browse to your project's `data/ships/` directory.
 3. Select one JSON file (e.g., `frigates.json`).
 
 ### Step 3 — Import
 
-Click **Import from EVEOFFLINE JSON**.
+Click **Import from Project JSON**.
 
 This will:
 - Parse every ship definition in that file.
@@ -154,7 +154,7 @@ Each ship is generated and placed in its own Blender collection named
 
 ### What Gets Mapped
 
-| EVEOFFLINE JSON field | Generator parameter |
+| Project JSON field | Generator parameter |
 |-----------------------|--------------------|
 | `class` (Frigate, Titan, etc.) | `ship_class` |
 | `race` (Solari, Veyren, etc.) | `style` |
@@ -165,7 +165,7 @@ Each ship is generated and placed in its own Blender collection named
 
 ---
 
-## Export OBJ Files for the Atlas Engine
+## Export OBJ Files for Your Engine
 
 ### Step 1 — Select the Ship
 
@@ -174,24 +174,24 @@ want to export. The hull is the parent object in the collection.
 
 ### Step 2 — Set Export Path
 
-In the **EVEOFFLINE / Atlas Integration** section:
+In the **AtlasForge Export** section:
 
 1. Click the folder icon next to **Export Path**.
-2. Browse to your EVEOFFLINE project's model output directory:
+2. Browse to your project's model output directory:
    ```
-   EVEOFFLINE/data/ships/obj_models/
+   {project}/data/ships/obj_models/
    ```
    Or any other directory you prefer.
 
 ### Step 3 — Export
 
-Click **Export OBJ for Atlas**.
+Click **Export OBJ for AtlasForge**.
 
 This will:
 - Select the hull and all child objects (cockpit, engines, weapons, modules, interior).
 - Apply all modifiers (subdivision, edge split, cast).
 - Export as `.obj` with matching `.mtl` material file.
-- Use the correct axis orientation for the Atlas engine
+- Use the correct axis orientation for the game engine
   (forward: -Z, up: Y).
 
 The exported file is named after the hull object, e.g., `Hull.obj`.
@@ -201,7 +201,7 @@ The exported file is named after the hull object, e.g., `Hull.obj`.
 Check that the files exist:
 
 ```bash
-ls -la EVEOFFLINE/data/ships/obj_models/
+ls -la {project}/data/ships/obj_models/
 # Should see:
 #   Hull.obj
 #   Hull.mtl
@@ -209,22 +209,21 @@ ls -la EVEOFFLINE/data/ships/obj_models/
 
 ---
 
-## Place the Models in EVEOFFLINE
+## Place the Models in Your Project
 
 ### Directory Structure
 
-EVEOFFLINE expects ship models in:
+Your project should expect ship models in:
 
 ```
-EVEOFFLINE/data/ships/obj_models/
+{project}/data/ships/obj_models/
 ```
 
-The existing `obj_models.7z` archive contains the base models. Place your
-newly generated `.obj` and `.mtl` files alongside or extract and replace.
+Place your newly generated `.obj` and `.mtl` files in this directory.
 
 ### Naming Convention
 
-For the Atlas engine to find your model, name the OBJ file to match the ship
+For your game engine to find your model, name the OBJ file to match the ship
 ID from the JSON. Before exporting, you can rename the hull object in Blender:
 
 1. Select the hull in the Outliner.
@@ -242,10 +241,10 @@ mv Hull.mtl fang.mtl
 
 ## Test in Engine
 
-### Step 1 — Build EVEOFFLINE
+### Step 1 — Build Your Project
 
 ```bash
-cd EVEOFFLINE
+cd {project}
 ./build.sh          # Linux/macOS
 # or
 build.bat           # Windows
@@ -255,13 +254,13 @@ build.bat           # Windows
 
 ```bash
 cd build/bin
-./eve_client "YourName"
+./game_client "YourName"
 ```
 
 ### Step 3 — Verify Ship Renders
 
-The Atlas engine will load the OBJ model referenced by each ship definition.
-When you undock or view your ship in the game client, you should see the
+Your game engine will load the OBJ model referenced by each ship definition.
+When you view your ship in the game client, you should see the
 procedurally generated geometry.
 
 ### Checklist
@@ -277,7 +276,7 @@ procedurally generated geometry.
 
 ## Batch Generation Script
 
-To generate and export every ship in your EVEOFFLINE data at once, run this
+To generate and export every ship in your project data at once, run this
 script inside Blender's **Scripting** workspace (or paste into Blender's
 Python console):
 
@@ -287,14 +286,15 @@ import os
 import sys
 
 # Add the addon directory to the path if needed
-# sys.path.append('/path/to/BlenderSpaceshipGenerator')
+# sys.path.append('/path/to/AtlasForgeGenerator')
 
-from BlenderSpaceshipGenerator import ship_generator, atlas_exporter
+# Note: Replace with actual module path if different
+from . import ship_generator, atlas_exporter
 
 # === CONFIGURATION ===
-EVEOFFLINE_DIR = '/path/to/EVEOFFLINE'
-SHIPS_DIR = os.path.join(EVEOFFLINE_DIR, 'data', 'ships')
-EXPORT_DIR = os.path.join(EVEOFFLINE_DIR, 'data', 'ships', 'obj_models')
+PROJECT_DIR = '/path/to/your/project'
+SHIPS_DIR = os.path.join(PROJECT_DIR, 'data', 'ships')
+EXPORT_DIR = os.path.join(PROJECT_DIR, 'data', 'ships', 'obj_models')
 # =====================
 
 os.makedirs(EXPORT_DIR, exist_ok=True)
@@ -310,7 +310,7 @@ for ship_id, ship_data in all_ships.items():
     bpy.ops.object.select_all(action='SELECT')
     bpy.ops.object.delete()
 
-    # Parse EVEOFFLINE config
+    # Parse project config
     config = atlas_exporter.parse_ship_config(ship_data)
 
     # Generate the ship
@@ -349,7 +349,7 @@ print("Done! All ships exported.")
 2. Switch to the **Scripting** workspace (tab at the top).
 3. Click **New** to create a new text block.
 4. Paste the script above.
-5. Edit `EVEOFFLINE_DIR` to point to your EVEOFFLINE clone.
+5. Edit `PROJECT_DIR` to point to your project directory.
 6. Click **Run Script** (▶ button).
 
 **Option B — From the command line** (headless):
@@ -365,7 +365,7 @@ Save the script as `batch_generate.py` and run it. Blender runs headless
 
 ## Faction Style Reference
 
-Each EVEOFFLINE faction has a distinct visual style applied to the hull
+Each faction has a distinct visual style applied to the hull
 geometry:
 
 | Faction | Style | Visual Character | Tank Focus |
@@ -375,7 +375,7 @@ geometry:
 | **Aurelian** | Sleek, organic | Organic subdivision, spherical cast | Armor/Drones |
 | **Keldari** | Rugged, industrial | Heavy bevels, blocky construction | Balanced |
 
-The style is automatically selected when importing from EVEOFFLINE JSON based
+The style is automatically selected when importing from project JSON based
 on the ship's `race` field.
 
 You can also manually select these styles from the **Style** dropdown in the
@@ -385,7 +385,7 @@ Blender panel.
 
 ## Generate Stations
 
-The addon can generate procedural space stations matching EVEOFFLINE's station
+The addon can generate procedural space stations matching project station
 types and faction architectures.
 
 ### Station Types
@@ -414,7 +414,7 @@ Each faction produces a distinct station visual:
 
 ### How to Generate
 
-1. In the **Spaceship** sidebar panel, scroll to **Station Generation**.
+1. In the **AtlasForge** sidebar panel, scroll to **Station Generation**.
 2. Select the **Station Type** (Industrial, Military, Keepstar, etc.).
 3. Select the **Station Faction** (Solari, Veyren, Aurelian, Keldari).
 4. Set the **Random Seed** (same seed = same station).
@@ -422,16 +422,16 @@ Each faction produces a distinct station visual:
 
 The station appears at the 3D cursor, organized in its own collection.
 
-### Export for EVEOFFLINE
+### Export for Your Project
 
 Select the station hub object, set the export path, and click
-**Export OBJ for Atlas** — the same workflow as ships.
+**Export OBJ for AtlasForge** — the same workflow as ships.
 
 ---
 
 ## Generate Asteroid Belts
 
-The addon generates asteroid belts with all 16 EVEOFFLINE ore types and
+The addon generates asteroid belts with all 16 ore types and
 multiple belt configurations.
 
 ### Ore Types
@@ -468,7 +468,7 @@ All ore types from `data/universe/asteroid_visual_data.json` are supported:
 
 ### How to Generate
 
-1. In the **Spaceship** sidebar panel, scroll to **Asteroid Belt Generation**.
+1. In the **AtlasForge** sidebar panel, scroll to **Asteroid Belt Generation**.
 2. Select the **Belt Layout** (Semicircle, Sphere, Cluster, Ring).
 3. Select the **Primary Ore** type.
 4. Set the **Asteroid Count** (5–200).
@@ -480,16 +480,16 @@ Each asteroid gets:
 - Random rotation and size variation
 - PBR material matching the ore's color, roughness, and metallic values
 
-### Export for EVEOFFLINE
+### Export for Your Project
 
 Select the belt root empty, set the export path, and click
-**Export OBJ for Atlas**.
+**Export OBJ for AtlasForge**.
 
 ---
 
 ## Troubleshooting
 
-### "Select a valid EVEOFFLINE ship JSON file"
+### "Select a valid ship JSON file"
 
 The **Ship JSON** path must point to a `.json` file. Use the folder icon
 to browse to the file. Make sure the path ends with `.json`.
@@ -499,7 +499,7 @@ to browse to the file. Make sure the path ends with `.json`.
 Check that the path is correct. Blender uses `//` for relative paths.
 Use an absolute path to be safe.
 
-### Ship looks wrong compared to EVEOFFLINE data
+### Ship looks wrong compared to project data
 
 The generator creates procedural geometry — it won't exactly replicate a
 hand-modeled ship. The purpose is to produce a **consistent, seed-based
@@ -514,11 +514,11 @@ count.
 - If using Blender < 3.x, the built-in OBJ exporter API may differ. Use
   Blender 3.x+ for best results.
 
-### Models don't load in the Atlas engine
+### Models don't load in your game engine
 
 - Verify the `.obj` file name matches the ship `id` from the JSON exactly.
 - Verify the file is in `data/ships/obj_models/`.
-- Check the Atlas engine console output for model loading errors.
+- Check your game engine console output for model loading errors.
 - Make sure the `.mtl` file is in the same directory as the `.obj`.
 
 ### Addon doesn't appear in Blender

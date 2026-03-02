@@ -1,9 +1,9 @@
-# EVEOFFLINE / Atlas Engine Integration Reference
+# AtlasForge Engine Integration Reference
 
 > **Audience:** Engine developers implementing the ship, station, and brick
 > systems in C++.  This document is the single source of truth for every data
 > structure, constant, pipeline step, and convention that the
-> BlenderSpaceshipGenerator exports and the Atlas runtime must consume.
+> AtlasForge Generator exports and game engine runtimes must consume.
 
 ---
 
@@ -32,9 +32,9 @@
 
 ## 1. Overview & Purpose
 
-The BlenderSpaceshipGenerator produces game-ready 3D assets for the
-EVEOFFLINE project.  It is both a Blender add-on (procedural generation at
-author time) and a specification for the Atlas game engine (runtime systems).
+The AtlasForge Generator produces game-ready 3D assets for projects using
+procedural content generation.  It is both a Blender add-on (procedural generation at
+author time) and a specification for game engines (runtime systems).
 The key principle is:
 
 > **Bricks are authoritative; meshes are derived.**
@@ -48,7 +48,7 @@ same data drives:
 - Combat damage and structural collapse
 - Salvage and recovery
 
-The Atlas engine must be able to:
+Any compatible game engine must be able to:
 
 1. Load a Ship DNA JSON file.
 2. Reconstruct the brick layout on a grid.
@@ -73,7 +73,7 @@ The Atlas engine must be able to:
 
 ### Atlas Engine Space (OBJ Export)
 
-The OBJ exporter transforms to Atlas conventions:
+The OBJ exporter transforms to engine conventions:
 
 | Export Setting   | Value         |
 |-----------------|---------------|
@@ -111,7 +111,7 @@ the hull object.
   "style": "SOLARI",
 
   // Naming prefix applied to all Blender objects during generation.
-  "naming_prefix": "EVEOFFLINE",
+  "naming_prefix": "ATLASFORGE",
 
   // Grid size in metres used for brick snapping (derived from ship class).
   "grid_size": 2.0,
@@ -441,7 +441,7 @@ For LODs: duplicate and decimate at 0.5× / 0.25× ratios.
 
 ### Engine Implementation
 
-At runtime the Atlas engine should:
+At runtime the game engine should:
 
 1. Load pre-baked OBJ hull meshes for static ships.
 2. For player-built ships, either re-run SDF meshing on the GPU or use a
@@ -762,15 +762,15 @@ Each export produces:
 
 ### Naming Convention
 
-The OBJ file name must match the ship `id` from EVEOFFLINE JSON for the
-Atlas engine to find it:
+The OBJ file name must match the ship `id` from the project JSON for the
+game engine to find it:
 
 ```
-EVEOFFLINE/data/ships/obj_models/{ship_id}.obj
-EVEOFFLINE/data/ships/obj_models/{ship_id}.mtl
+{project}/data/ships/obj_models/{ship_id}.obj
+{project}/data/ships/obj_models/{ship_id}.mtl
 ```
 
-### EVEOFFLINE JSON → Generator Mapping
+### Project JSON → Generator Mapping
 
 | JSON Field                          | Generator Param   |
 |------------------------------------|-------------------|
@@ -826,10 +826,10 @@ float getHullWeight(BrickType type) {
 
 ## 18. Data File Conventions
 
-### EVEOFFLINE Directory Structure
+### Project Directory Structure
 
 ```
-EVEOFFLINE/
+{project}/
 ├── data/
 │   └── ships/
 │       ├── frigates.json
@@ -881,9 +881,9 @@ Ship DNA JSON files can be saved independently:
 │       └── ...
 ```
 
-The `[PREFIX_]` is applied when `naming_prefix` is set (e.g., `EVEOFFLINE_Hull`).
+The `[PREFIX_]` is applied when `naming_prefix` is set (e.g., `ATLASFORGE_Hull`).
 
 ---
 
-*This document was generated from the BlenderSpaceshipGenerator codebase.
+*This document was generated from the AtlasForge Generator codebase.
 Keep it in sync when brick types, ship classes, or export conventions change.*

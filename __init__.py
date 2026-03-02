@@ -1,16 +1,16 @@
 """
-NovaForge Ship Generator — Blender Addon
-Generates procedural spaceships, stations, and asteroids for the NovaForge game.
-Content pipeline tool for the Atlas engine.
+AtlasForge Generator — Blender Addon
+Procedural content generation (PCG) tool for spaceships, stations, and asteroids.
+Engine-agnostic asset generation pipeline designed for integration into multiple projects.
 """
 
 bl_info = {
-    "name": "NovaForge Ship Generator",
-    "author": "BlenderSpaceshipGenerator",
-    "version": (2, 0, 0),
+    "name": "AtlasForge Generator",
+    "author": "AtlasForge",
+    "version": (3, 0, 0),
     "blender": (2, 80, 0),
-    "location": "View3D > Sidebar > Spaceship",
-    "description": "Generate procedural spaceships for the NovaForge content pipeline",
+    "location": "View3D > Sidebar > AtlasForge",
+    "description": "Engine-based PCG asset pipeline for procedural spaceships, stations, and asteroids",
     "category": "Add Mesh",
 }
 
@@ -43,11 +43,11 @@ from . import build_validator
 
 
 class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
-    """Properties for the spaceship generator"""
+    """Properties for the AtlasForge generator"""
     
     ship_class: EnumProperty(
         name="Ship Class",
-        description="NovaForge ship class to generate",
+        description="Ship class to generate",
         items=[
             ('SHUTTLE', "Shuttle", "Small transport ship"),
             ('FIGHTER', "Fighter", "Single-seat combat ship"),
@@ -120,14 +120,14 @@ class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
 
     novaforge_json_path: StringProperty(
         name="Ship JSON",
-        description="Path to a NovaForge ship JSON file to import",
+        description="Path to a project ship JSON file to import",
         subtype='FILE_PATH',
         default=""
     )
 
     eveoffline_export_path: StringProperty(
         name="Export Path",
-        description="Directory to export OBJ files for the EVEOFFLINE asset pipeline",
+        description="Directory to export OBJ files for the asset pipeline",
         subtype='DIR_PATH',
         default=""
     )
@@ -257,8 +257,8 @@ class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
     )
 
     novaforge_data_dir: StringProperty(
-        name="NovaForge Data Dir",
-        description="Path to a NovaForge data/ships directory",
+        name="Project Data Dir",
+        description="Path to a project data/ships directory",
         subtype='DIR_PATH',
         default=""
     )
@@ -376,9 +376,9 @@ class SPACESHIP_OT_generate(bpy.types.Operator):
 
 
 class SPACESHIP_OT_import_eveoffline(bpy.types.Operator):
-    """Import ships from EVEOFFLINE JSON data and generate them"""
+    """Import ships from project JSON data and generate them"""
     bl_idname = "mesh.import_eveoffline_ships"
-    bl_label = "Import from EVEOFFLINE JSON"
+    bl_label = "Import from Project JSON"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -386,7 +386,7 @@ class SPACESHIP_OT_import_eveoffline(bpy.types.Operator):
         json_path = bpy.path.abspath(props.novaforge_json_path)
 
         if not json_path or not json_path.endswith('.json'):
-            self.report({'ERROR'}, "Select a valid NovaForge ship JSON file")
+            self.report({'ERROR'}, "Select a valid ship JSON file")
             return {'CANCELLED'}
 
         import os
@@ -414,14 +414,14 @@ class SPACESHIP_OT_import_eveoffline(bpy.types.Operator):
             )
             count += 1
 
-        self.report({'INFO'}, f"Generated {count} ships from EVEOFFLINE data")
+        self.report({'INFO'}, f"Generated {count} ships from project data")
         return {'FINISHED'}
 
 
 class SPACESHIP_OT_export_obj(bpy.types.Operator):
-    """Export the selected ship as OBJ for the EVEOFFLINE/Atlas engine"""
+    """Export the selected ship as OBJ for the AtlasForge engine"""
     bl_idname = "mesh.export_eveoffline_obj"
-    bl_label = "Export OBJ for Atlas"
+    bl_label = "Export OBJ for AtlasForge"
     bl_options = {'REGISTER'}
 
     def execute(self, context):
@@ -520,9 +520,9 @@ class SPACESHIP_OT_export_ship_dna(bpy.types.Operator):
 
 
 class SPACESHIP_OT_import_novaforge(bpy.types.Operator):
-    """Import a single NovaForge ship JSON and generate it"""
+    """Import a single project ship JSON and generate it"""
     bl_idname = "mesh.import_novaforge_ship"
-    bl_label = "Generate from NovaForge JSON"
+    bl_label = "Generate from Project JSON"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -531,7 +531,7 @@ class SPACESHIP_OT_import_novaforge(bpy.types.Operator):
         json_path = bpy.path.abspath(props.novaforge_json_path)
 
         if not json_path or not json_path.endswith('.json'):
-            self.report({'ERROR'}, "Select a valid NovaForge ship JSON file")
+            self.report({'ERROR'}, "Select a valid ship JSON file")
             return {'CANCELLED'}
         if not os.path.isfile(json_path):
             self.report({'ERROR'}, f"File not found: {json_path}")
@@ -549,12 +549,12 @@ class SPACESHIP_OT_import_novaforge(bpy.types.Operator):
             ship_generator.generate_spaceship(**params)
             count += 1
 
-        self.report({'INFO'}, f"Generated {count} ships from NovaForge data")
+        self.report({'INFO'}, f"Generated {count} ships from project data")
         return {'FINISHED'}
 
 
 class SPACESHIP_OT_batch_novaforge(bpy.types.Operator):
-    """Batch generate all ships from a NovaForge data directory"""
+    """Batch generate all ships from a project data directory"""
     bl_idname = "mesh.batch_novaforge_ships"
     bl_label = "Batch Generate All Ships"
     bl_options = {'REGISTER', 'UNDO'}
@@ -565,7 +565,7 @@ class SPACESHIP_OT_batch_novaforge(bpy.types.Operator):
         data_dir = bpy.path.abspath(props.novaforge_data_dir)
 
         if not data_dir or not os.path.isdir(data_dir):
-            self.report({'ERROR'}, "Set a valid NovaForge data directory")
+            self.report({'ERROR'}, "Set a valid project data directory")
             return {'CANCELLED'}
 
         ships = novaforge_importer.load_ships_from_directory(data_dir)
@@ -579,7 +579,7 @@ class SPACESHIP_OT_batch_novaforge(bpy.types.Operator):
             ship_generator.generate_spaceship(**params)
             count += 1
 
-        self.report({'INFO'}, f"Batch generated {count} ships from NovaForge data")
+        self.report({'INFO'}, f"Batch generated {count} ships from project data")
         return {'FINISHED'}
 
 
@@ -658,16 +658,16 @@ class SPACESHIP_OT_batch_generate(bpy.types.Operator):
 
 
 class SPACESHIP_OT_novaforge_pipeline(bpy.types.Operator):
-    """Read all NovaForge data/ships JSON files, generate every ship, and export OBJ models.
+    """Read all project data/ships JSON files, generate every ship, and export OBJ models.
 
     Each ship is generated using its model_data (seed, turrets, engines,
     drones, launchers) and faction style, then exported as
     ``<ship_id>.obj`` into the output directory.  The resulting folder
-    can be placed directly into the NovaForge ``data/ships/obj_models/``
-    directory for use by the Atlas engine.
+    can be placed directly into the project's ``data/ships/obj_models/``
+    directory for use by the AtlasForge engine.
     """
     bl_idname = "mesh.novaforge_pipeline_export"
-    bl_label = "NovaForge Pipeline Export"
+    bl_label = "AtlasForge Pipeline Export"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -679,7 +679,7 @@ class SPACESHIP_OT_novaforge_pipeline(bpy.types.Operator):
 
         if not data_dir or not os.path.isdir(data_dir):
             self.report({'ERROR'},
-                        "Set the NovaForge Data Dir to your data/ships directory")
+                        "Set the Project Data Dir to your data/ships directory")
             return {'CANCELLED'}
 
         if not output_dir:
@@ -721,17 +721,17 @@ class SPACESHIP_OT_novaforge_pipeline(bpy.types.Operator):
 
         self.report(
             {'INFO'},
-            f"NovaForge pipeline: generated {count} ships to {output_dir}")
+            f"AtlasForge pipeline: generated {count} ships to {output_dir}")
         return {'FINISHED'}
 
 
 class SPACESHIP_PT_main_panel(bpy.types.Panel):
-    """Main panel for spaceship generator"""
-    bl_label = "Spaceship Generator"
+    """Main panel for AtlasForge generator"""
+    bl_label = "AtlasForge Generator"
     bl_idname = "SPACESHIP_PT_main_panel"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = 'Spaceship'
+    bl_category = 'AtlasForge'
     
     def draw(self, context):
         layout = self.layout
@@ -775,7 +775,7 @@ class SPACESHIP_PT_main_panel(bpy.types.Panel):
         layout.operator("mesh.batch_generate_all", icon='FILE_REFRESH')
 
         layout.separator()
-        layout.label(text="NovaForge Integration:")
+        layout.label(text="Project Integration:")
         layout.prop(props, "novaforge_data_dir")
         layout.operator("mesh.import_novaforge_ship", icon='IMPORT')
         layout.operator("mesh.batch_novaforge_ships", icon='FILE_REFRESH')
@@ -783,7 +783,7 @@ class SPACESHIP_PT_main_panel(bpy.types.Panel):
         layout.operator("mesh.catalog_render", icon='RENDER_STILL')
 
         layout.separator()
-        layout.label(text="EVEOFFLINE / Atlas Integration:")
+        layout.label(text="AtlasForge Export:")
         layout.prop(props, "novaforge_json_path")
         layout.operator("mesh.import_eveoffline_ships", icon='IMPORT')
         layout.prop(props, "eveoffline_export_path")

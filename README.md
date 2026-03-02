@@ -1,24 +1,28 @@
-# BlenderSpaceshipGenerator
+# Blender Generator for AtlasForge
 
-A comprehensive Blender addon for procedurally generating spaceships, textures, and catalog renders. This is the **asset pipeline tool** for the [NovaForge](https://github.com/shifty81/NovaForge) PVE space simulator, built on the Atlas Engine.
+A comprehensive Blender addon for procedurally generating spaceships, stations, and assets using an **engine-based PCG (Procedural Content Generation) pipeline**. This tool is designed to be integrated into multiple projects, providing a flexible asset generation system that can be adapted and extended for specific game engines and content pipelines.
 
-## NovaForge Asset Pipeline
+## AtlasForge Engine System
 
-This addon is the primary tool for generating and refining all 3D assets used by NovaForge:
+This addon serves as a universal **asset generation tool** that can be merged into any project requiring procedural 3D content:
 
-- **Import ships from NovaForge JSON** — reads `data/ships/*.json` and generates matching geometry using each ship's faction, class, seed, `model_data` (turret_hardpoints, launcher_hardpoints, drone_bays, engine_count, generation_seed).
-- **Batch generate** — process an entire `data/ships/` directory in one click to regenerate all ship meshes.
-- **Faction-specific details** — Solari spires, Veyren armor panels, Aurelian organic pods, Keldari exposed framework struts match NovaForge's four races.
-- **PBR material pipeline** — procedural diffuse, normal (panel lines + rivets), glow/emissive, and dirt/grime materials for full texture baking.
-- **Catalog render setup** — one-click 3/4-view camera, three-point lighting, and transparent PNG output for ship catalog images.
-- **Export OBJ for Atlas Engine** — correct +Z-forward coordinate system, NovaForge scale (1 game unit ≈ 50 m), companion material JSON.
-- **All ship classes** — Frigates through Titans, plus Industrials, Mining Barges, and Exhumers.
-- **Station generation** — procedural space stations matching NovaForge station types (Industrial, Military, Commercial, Research, Mining) and Upwell structures (Astrahus, Fortizar, Keepstar).
-- **Asteroid belt generation** — procedural asteroid belts with all 16 NovaForge ore types and 4 belt layouts (Semicircle, Sphere, Cluster, Ring).
+- **Engine-agnostic design** — works with any game engine via OBJ/JSON export
+- **Project adaptable** — merge into your project and customize for specific needs
+- **PCG pipeline ready** — seed-deterministic generation for reproducible assets
+- **Batch processing** — generate entire asset libraries from JSON definitions
+- **Modular architecture** — extend with custom generators for your project's needs
 
-**→ [Feature Specification](features.md)** — complete feature list, design rules, and implementation status.
+### Integration Model
 
-**→ [NovaForge Implementation Plan](NOVAFORGE_PLAN.md)** — phased roadmap for evolving this addon into a full PCG pipeline (galaxy, systems, planets, stations, ships, characters) with C++ integration, ECS architecture, multiplayer sync, and environmental simulation.
+```
+AtlasForge Generator (this repo)
+        ↓ merge into project
+    Your Game Project
+        ↓ customize
+    Project-Specific Pipeline
+        ↓ generate
+    Game-Ready Assets (OBJ + JSON metadata)
+```
 
 ## Features
 
@@ -100,7 +104,7 @@ This addon is the primary tool for generating and refining all 3D assets used by
   - Elite Dangerous (Sleek, aerodynamic)
   - Eve Online (Organic, flowing)
   - Mixed (Combination of all styles)
-  - **NovaForge Factions**:
+  - **Faction Styles**:
     - Solari (Golden cathedral spires — armor tanking)
     - Veyren (Steel-blue blocky panels — shield tanking)
     - Aurelian (Green organic curves — drones)
@@ -113,7 +117,7 @@ This addon is the primary tool for generating and refining all 3D assets used by
   - Docking bays and hangars
 
 - **Asteroid Belt Generation**:
-  - 16 ore types from NovaForge (Dustite through Nexorite)
+  - 16 ore types (Dustite through Nexorite)
   - 4 belt layouts: Semicircle, Sphere, Cluster, Ring
   - Procedural deformation for natural rocky shapes
   - PBR materials matching ore visual data
@@ -131,7 +135,7 @@ This addon is the primary tool for generating and refining all 3D assets used by
   - Transparent background PNG output
   - Thumbnail render mode (512×512)
 
-- **NovaForge Export**:
+- **AtlasForge Export**:
   - OBJ export with +Z-forward, +Y-up coordinate system
   - Scale conversion (1 game unit = 50 m)
   - Companion material JSON with PBR properties
@@ -141,7 +145,7 @@ This addon is the primary tool for generating and refining all 3D assets used by
 1. Download or clone this repository
 2. In Blender, go to Edit → Preferences → Add-ons
 3. Click "Install" and select the downloaded folder or ZIP file
-4. Enable the "Spaceship Generator" addon
+4. Enable the "AtlasForge Generator" addon
 
 ## Usage
 
@@ -149,10 +153,10 @@ This addon is the primary tool for generating and refining all 3D assets used by
 
 1. Open Blender and go to the 3D Viewport
 2. Open the sidebar (press N if not visible)
-3. Navigate to the "Spaceship" tab
+3. Navigate to the "AtlasForge" tab
 4. Configure your ship:
    - Select ship class (Shuttle to Titan)
-   - Choose design style (or a NovaForge faction)
+   - Choose design style (or a faction style)
    - Set random seed for variation
    - Set turret, launcher, and drone bay counts
    - Enable/disable interior generation
@@ -161,13 +165,13 @@ This addon is the primary tool for generating and refining all 3D assets used by
    - Toggle symmetry
 5. Click "Generate Spaceship"
 
-### NovaForge Pipeline
+### Project Pipeline
 
-1. In the **NovaForge Integration** section, set the data directory to your NovaForge `data/ships/` folder
-2. Click **"Generate from NovaForge JSON"** to import a single JSON file, or **"Batch Generate All Ships"** to process the entire directory
+1. In the **Project Integration** section, set the data directory to your project's `data/ships/` folder
+2. Click **"Generate from Project JSON"** to import a single JSON file, or **"Batch Generate All Ships"** to process the entire directory
 3. Each ship is generated using its `model_data` (seed, turrets, launchers, drones, engines) and race-to-faction style mapping
 4. Click **"Setup Catalog Render"** to position the camera and lights for a catalog image
-5. Use **File → Export → Export for NovaForge (.obj)** to export with the correct coordinate system and scale
+5. Use **"Export OBJ for AtlasForge"** to export with the correct coordinate system and scale
 
 ## Ship Classes
 

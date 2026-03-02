@@ -13,11 +13,11 @@
    - Go to `Edit` → `Preferences`
    - Select the `Add-ons` tab
    - Click the `Install...` button
-   - Navigate to the BlenderSpaceshipGenerator folder
+   - Navigate to the AtlasForgeGenerator folder
    - Select the folder and click `Install Add-on`
 
 3. **Enable the Addon**
-   - Search for "Spaceship Generator" in the add-ons list
+   - Search for "AtlasForge Generator" in the add-ons list
    - Check the box next to the addon name to enable it
    - The addon is now ready to use!
 
@@ -25,8 +25,8 @@
 
 1. **Open the Panel**
    - In the 3D Viewport, press `N` to open the sidebar
-   - Click on the `Spaceship` tab
-   - You'll see the Spaceship Generator panel
+   - Click on the `AtlasForge` tab
+   - You'll see the AtlasForge Generator panel
 
 2. **Basic Configuration**
    - Select a ship class (try "Fighter" for your first ship)
@@ -110,7 +110,7 @@ Each ship class has predefined characteristics:
 - X4: Angular, industrial, geometric
 - Elite Dangerous: Sleek, aerodynamic
 - Eve Online: Organic, flowing curves
-- EVEOFFLINE Factions: Solari, Veyren, Aurelian, Keldari
+- Faction Styles: Solari, Veyren, Aurelian, Keldari
 - NMS: Colorful, varied, organic
 
 **Random Seed**
