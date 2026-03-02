@@ -1353,6 +1353,131 @@ def test_emission_color_compat():
     return all_valid
 
 
+def test_ship_class_consistency():
+    """Test that all 18 ship classes are present in every key data structure"""
+    print("\nTesting ship class consistency across modules...")
+
+    addon_path = os.path.dirname(os.path.abspath(__file__))
+    import importlib.util
+
+    # Expected 18 classes from ENGINE_INTEGRATION.md
+    expected_classes = {
+        'SHUTTLE', 'FIGHTER', 'CORVETTE', 'FRIGATE', 'DESTROYER', 'CRUISER',
+        'BATTLECRUISER', 'BATTLESHIP', 'CARRIER', 'DREADNOUGHT', 'CAPITAL',
+        'TITAN', 'INDUSTRIAL', 'MINING_BARGE', 'EXHUMER', 'EXPLORER',
+        'HAULER', 'EXOTIC',
+    }
+
+    all_valid = True
+
+    # 1. SHIP_CONFIGS in ship_generator.py (parse via AST to avoid bpy)
+    sg_path = os.path.join(addon_path, 'ship_generator.py')
+    with open(sg_path, 'r') as f:
+        sg_content = f.read()
+    tree = ast.parse(sg_content)
+    sg_classes = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id == 'SHIP_CONFIGS':
+                    if isinstance(node.value, ast.Dict):
+                        for k in node.value.keys:
+                            if isinstance(k, ast.Constant):
+                                sg_classes.add(k.value)
+    missing = expected_classes - sg_classes
+    if not missing:
+        print(f"✓ SHIP_CONFIGS has all {len(expected_classes)} classes")
+    else:
+        print(f"✗ SHIP_CONFIGS missing: {missing}")
+        all_valid = False
+
+    # 2. GRID_SIZES in brick_system.py
+    bs_path = os.path.join(addon_path, 'brick_system.py')
+    spec = importlib.util.spec_from_file_location("brick_system", bs_path)
+    bs = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(bs)
+    missing = expected_classes - set(bs.GRID_SIZES.keys())
+    if not missing:
+        print(f"✓ GRID_SIZES has all {len(expected_classes)} classes")
+    else:
+        print(f"✗ GRID_SIZES missing: {missing}")
+        all_valid = False
+
+    # 3. HULL_PROFILES in ship_parts.py (parse via AST)
+    sp_path = os.path.join(addon_path, 'ship_parts.py')
+    with open(sp_path, 'r') as f:
+        sp_content = f.read()
+    sp_tree = ast.parse(sp_content)
+    hp_classes = set()
+    for node in ast.walk(sp_tree):
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id == 'HULL_PROFILES':
+                    if isinstance(node.value, ast.Dict):
+                        for k in node.value.keys:
+                            if isinstance(k, ast.Constant):
+                                hp_classes.add(k.value)
+    missing = expected_classes - hp_classes
+    if not missing:
+        print(f"✓ HULL_PROFILES has all {len(expected_classes)} classes")
+    else:
+        print(f"✗ HULL_PROFILES missing: {missing}")
+        all_valid = False
+
+    # 4. LOD_DISTANCES in lod_generator.py
+    lg_path = os.path.join(addon_path, 'lod_generator.py')
+    spec = importlib.util.spec_from_file_location("lod_generator", lg_path)
+    lg = importlib.util.module_from_spec(spec)
+    import types
+    bpy_mock = types.ModuleType('bpy')
+    sys.modules['bpy'] = bpy_mock
+    try:
+        spec.loader.exec_module(lg)
+    finally:
+        del sys.modules['bpy']
+    missing = expected_classes - set(lg.LOD_DISTANCES.keys())
+    if not missing:
+        print(f"✓ LOD_DISTANCES has all {len(expected_classes)} classes")
+    else:
+        print(f"✗ LOD_DISTANCES missing: {missing}")
+        all_valid = False
+
+    # 5. DEFAULT_COLLISION_TYPE in collision_generator.py
+    cg_path = os.path.join(addon_path, 'collision_generator.py')
+    with open(cg_path, 'r') as f:
+        cg_content = f.read()
+    tree = ast.parse(cg_content)
+    cg_classes = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id == 'DEFAULT_COLLISION_TYPE':
+                    if isinstance(node.value, ast.Dict):
+                        for k in node.value.keys:
+                            if isinstance(k, ast.Constant):
+                                cg_classes.add(k.value)
+    missing = expected_classes - cg_classes
+    if not missing:
+        print(f"✓ DEFAULT_COLLISION_TYPE has all {len(expected_classes)} classes")
+    else:
+        print(f"✗ DEFAULT_COLLISION_TYPE missing: {missing}")
+        all_valid = False
+
+    # 6. CAPACITOR_SIZE in power_system.py
+    ps_path = os.path.join(addon_path, 'power_system.py')
+    spec = importlib.util.spec_from_file_location("power_system", ps_path)
+    ps = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(ps)
+    missing = expected_classes - set(ps.CAPACITOR_SIZE.keys())
+    if not missing:
+        print(f"✓ CAPACITOR_SIZE has all {len(expected_classes)} classes")
+    else:
+        print(f"✗ CAPACITOR_SIZE missing: {missing}")
+        all_valid = False
+
+    return all_valid
+
+
 def run_tests():
     """Run all validation tests"""
     print("=" * 60)
@@ -1391,6 +1516,7 @@ def run_tests():
         ("Connecting Geometry", test_connecting_geometry),
         ("Batch Generate Operator", test_batch_generate_operator),
         ("Emission Color Compat", test_emission_color_compat),
+        ("Ship Class Consistency", test_ship_class_consistency),
     ]
     
     results = []
