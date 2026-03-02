@@ -1,5 +1,5 @@
 """
-Brick taxonomy and hardpoint grid system for EVE-style LEGO ship building.
+Brick taxonomy and hardpoint grid system for NovaForge ship building.
 
 Defines a small, well-defined set of brick types that players can snap
 together on a 3D grid.  Each brick declares its size, role, and available
@@ -233,9 +233,6 @@ SCALE_BANDS = {
 # ---------------------------------------------------------------------------
 
 GRID_SIZES = {
-    'SHUTTLE': 0.5,
-    'FIGHTER': 1.0,
-    'CORVETTE': 1.0,
     'FRIGATE': 1.0,
     'DESTROYER': 1.5,
     'CRUISER': 2.0,
@@ -243,14 +240,10 @@ GRID_SIZES = {
     'BATTLESHIP': 3.0,
     'CARRIER': 4.0,
     'DREADNOUGHT': 4.0,
-    'CAPITAL': 6.0,
     'TITAN': 8.0,
     'INDUSTRIAL': 1.5,
     'MINING_BARGE': 1.0,
     'EXHUMER': 1.5,
-    'EXPLORER': 1.0,
-    'HAULER': 1.5,
-    'EXOTIC': 1.0,
 }
 
 # ---------------------------------------------------------------------------
@@ -347,7 +340,7 @@ def select_engine_archetype(index, total_engines):
 # ---------------------------------------------------------------------------
 
 
-def generate_ship_dna(ship_class, seed, bricks, style='MIXED',
+def generate_ship_dna(ship_class, seed, bricks, style='SOLARI',
                       naming_prefix=''):
     """Create a JSON-serialisable Ship DNA dict.
 

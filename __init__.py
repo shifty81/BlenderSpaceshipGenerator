@@ -1,16 +1,16 @@
 """
-Blender Spaceship Generator Addon
-Generates procedural spaceships with modular parts and interiors
-Inspired by X4, Elite Dangerous, Eve Online, and the EVEOFFLINE project
+NovaForge Ship Generator — Blender Addon
+Generates procedural spaceships, stations, and asteroids for the NovaForge game.
+Content pipeline tool for the Atlas engine.
 """
 
 bl_info = {
-    "name": "Spaceship Generator",
+    "name": "NovaForge Ship Generator",
     "author": "BlenderSpaceshipGenerator",
     "version": (2, 0, 0),
     "blender": (2, 80, 0),
     "location": "View3D > Sidebar > Spaceship",
-    "description": "Generate procedural spaceships with EVEOFFLINE/Atlas integration",
+    "description": "Generate procedural spaceships for the NovaForge content pipeline",
     "category": "Add Mesh",
 }
 
@@ -47,28 +47,21 @@ class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
     
     ship_class: EnumProperty(
         name="Ship Class",
-        description="Type of ship to generate",
+        description="NovaForge ship class to generate",
         items=[
-            ('SHUTTLE', "Shuttle", "Small transport vessel"),
-            ('FIGHTER', "Fighter", "Single-seat combat ship"),
-            ('CORVETTE', "Corvette", "Small multi-crew combat ship"),
-            ('FRIGATE', "Frigate", "Medium combat/utility ship"),
+            ('FRIGATE', "Frigate", "Fast combat/utility ship"),
             ('DESTROYER', "Destroyer", "Heavy combat ship"),
             ('CRUISER', "Cruiser", "Large multi-role ship"),
             ('BATTLECRUISER', "Battlecruiser", "Heavy attack cruiser"),
             ('BATTLESHIP', "Battleship", "Heavy capital ship"),
             ('CARRIER', "Carrier", "Fleet carrier ship"),
             ('DREADNOUGHT', "Dreadnought", "Siege capital ship"),
-            ('CAPITAL', "Capital", "Largest class capital ship"),
             ('TITAN', "Titan", "Supercapital flagship"),
             ('INDUSTRIAL', "Industrial", "Cargo hauler"),
             ('MINING_BARGE', "Mining Barge", "Mining vessel"),
             ('EXHUMER', "Exhumer", "Advanced mining vessel"),
-            ('EXPLORER', "Explorer", "NMS-style long range exploration ship"),
-            ('HAULER', "Hauler", "NMS-style heavy cargo transport"),
-            ('EXOTIC', "Exotic", "NMS-style rare experimental ship"),
         ],
-        default='FIGHTER'
+        default='FRIGATE'
     )
     
     generate_interior: BoolProperty(
@@ -107,20 +100,15 @@ class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
     )
     
     style: EnumProperty(
-        name="Style",
-        description="Ship design style",
+        name="Faction",
+        description="NovaForge faction style",
         items=[
-            ('MIXED', "Mixed", "Mixed style from all inspirations"),
-            ('X4', "X4", "X4 Foundations style"),
-            ('ELITE', "Elite Dangerous", "Elite Dangerous style"),
-            ('EVE', "Eve Online", "Eve Online style"),
-            ('SOLARI', "Solari", "EVEOFFLINE Solari faction - golden, elegant"),
-            ('VEYREN', "Veyren", "EVEOFFLINE Veyren faction - angular, utilitarian"),
-            ('AURELIAN', "Aurelian", "EVEOFFLINE Aurelian faction - sleek, organic"),
-            ('KELDARI', "Keldari", "EVEOFFLINE Keldari faction - rugged, industrial"),
-            ('NMS', "No Man's Sky", "No Man's Sky style - colorful, varied, organic"),
+            ('SOLARI', "Solari", "Solari faction — golden, elegant, armor-focused"),
+            ('VEYREN', "Veyren", "Veyren faction — angular, utilitarian, shield-focused"),
+            ('AURELIAN', "Aurelian", "Aurelian faction — sleek, organic, drone-focused"),
+            ('KELDARI', "Keldari", "Keldari faction — rugged, industrial, missile-focused"),
         ],
-        default='MIXED'
+        default='SOLARI'
     )
 
     novaforge_json_path: StringProperty(
@@ -368,7 +356,7 @@ class SPACESHIP_OT_generate(bpy.types.Operator):
         # Set up animations if requested
         if props.generate_animations:
             config = ship_generator.SHIP_CONFIGS.get(
-                props.ship_class, ship_generator.SHIP_CONFIGS['FIGHTER']
+                props.ship_class, ship_generator.SHIP_CONFIGS['FRIGATE']
             )
             animation_system.setup_ship_animations(
                 hull,
@@ -707,7 +695,7 @@ class SPACESHIP_OT_novaforge_pipeline(bpy.types.Operator):
             if props.generate_textures:
                 texture_generator.apply_textures_to_ship(
                     hull,
-                    style=params.get('style', 'MIXED'),
+                    style=params.get('style', 'SOLARI'),
                     seed=params.get('seed', 1),
                     weathering=props.weathering,
                 )

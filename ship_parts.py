@@ -1,5 +1,5 @@
 """
-Ship parts generation module
+Ship parts generation module for the NovaForge content pipeline.
 Generates individual ship components (hull, cockpit, engines, wings, weapons, turrets)
 
 Engine generation supports three archetypes (MAIN_THRUST, MANEUVERING,
@@ -21,15 +21,12 @@ from . import brick_system
 MAX_TURRET_HARDPOINTS = 10
 
 # ---------------------------------------------------------------------------
-# Per-class hull shape profiles
+# Per-class hull shape profiles (NovaForge classes only)
 # ---------------------------------------------------------------------------
 # Each profile defines (width, length, height) multipliers relative to the
 # ship scale so every class gets a distinctive silhouette.
 
 HULL_PROFILES = {
-    'SHUTTLE':       (0.50, 0.80, 0.40),
-    'FIGHTER':       (0.45, 1.10, 0.25),
-    'CORVETTE':      (0.50, 1.00, 0.30),
     'FRIGATE':       (0.40, 1.20, 0.28),
     'DESTROYER':     (0.45, 1.30, 0.30),
     'CRUISER':       (0.50, 1.20, 0.32),
@@ -37,14 +34,10 @@ HULL_PROFILES = {
     'BATTLESHIP':    (0.60, 1.10, 0.38),
     'CARRIER':       (0.80, 1.00, 0.25),
     'DREADNOUGHT':   (0.55, 1.30, 0.40),
-    'CAPITAL':       (0.65, 1.20, 0.40),
     'TITAN':         (0.60, 1.40, 0.35),
     'INDUSTRIAL':    (0.60, 0.90, 0.50),
     'MINING_BARGE':  (0.70, 0.80, 0.45),
     'EXHUMER':       (0.65, 0.90, 0.40),
-    'EXPLORER':      (0.40, 1.10, 0.30),
-    'HAULER':        (0.70, 1.00, 0.50),
-    'EXOTIC':        (0.45, 1.00, 0.30),
 }
 
 # Default profile when ship_class is unknown
@@ -68,8 +61,8 @@ def create_mesh_object(name, verts, edges, faces):
     return obj
 
 
-def generate_hull(segments=5, scale=1.0, complexity=1.0, symmetry=True, style='MIXED',
-                  naming_prefix='', ship_class='FIGHTER', seed=0):
+def generate_hull(segments=5, scale=1.0, complexity=1.0, symmetry=True, style='SOLARI',
+                  naming_prefix='', ship_class='FRIGATE', seed=0):
     """
     Generate the main hull of the spaceship
 
@@ -81,7 +74,7 @@ def generate_hull(segments=5, scale=1.0, complexity=1.0, symmetry=True, style='M
         scale: Overall scale factor
         complexity: Geometry complexity (0.1-3.0)
         symmetry: Use symmetrical design
-        style: Design style
+        style: NovaForge faction style
         naming_prefix: Project naming prefix
         ship_class: Ship class key used to select hull profile
         seed: Random seed used for vertex noise
@@ -107,17 +100,8 @@ def generate_hull(segments=5, scale=1.0, complexity=1.0, symmetry=True, style='M
     # Add some variation to vertices
     bpy.ops.object.mode_set(mode='OBJECT')
     
-    # Apply style-specific modifications
-    if style == 'X4':
-        # X4 style: Angular, geometric
-        apply_x4_style(hull, scale)
-    elif style == 'ELITE':
-        # Elite style: Sleek, aerodynamic
-        apply_elite_style(hull, scale)
-    elif style == 'EVE':
-        # Eve style: Organic, flowing
-        apply_eve_style(hull, scale)
-    elif style == 'SOLARI':
+    # Apply NovaForge faction style modifications
+    if style == 'SOLARI':
         apply_solari_style(hull, scale)
     elif style == 'VEYREN':
         apply_veyren_style(hull, scale)
@@ -125,11 +109,8 @@ def generate_hull(segments=5, scale=1.0, complexity=1.0, symmetry=True, style='M
         apply_aurelian_style(hull, scale)
     elif style == 'KELDARI':
         apply_keldari_style(hull, scale)
-    elif style == 'NMS':
-        apply_nms_style(hull, scale)
     else:
-        # Mixed style
-        apply_mixed_style(hull, scale)
+        apply_solari_style(hull, scale)
     
     # Apply seed-driven vertex noise for organic uniqueness
     _apply_hull_vertex_noise(hull, scale, seed, complexity)
@@ -147,45 +128,6 @@ def generate_hull(segments=5, scale=1.0, complexity=1.0, symmetry=True, style='M
     edge_split.split_angle = math.radians(30)
 
     return hull
-
-
-def apply_x4_style(hull, scale):
-    """Apply X4 Foundations style - angular and geometric"""
-    bpy.context.view_layer.objects.active = hull
-    bpy.ops.object.mode_set(mode='EDIT')
-    bpy.ops.mesh.bevel(offset=0.1 * scale, segments=1)
-    bpy.ops.object.mode_set(mode='OBJECT')
-
-
-def apply_elite_style(hull, scale):
-    """Apply Elite Dangerous style - sleek and aerodynamic"""
-    bpy.context.view_layer.objects.active = hull
-    bpy.ops.object.mode_set(mode='EDIT')
-    bpy.ops.transform.taper(value=0.7)
-    bpy.ops.object.mode_set(mode='OBJECT')
-
-
-def apply_eve_style(hull, scale):
-    """Apply Eve Online style - organic and flowing"""
-    # Add a smooth deformation for organic look
-    bpy.context.view_layer.objects.active = hull
-    bpy.ops.object.mode_set(mode='EDIT')
-    # Add some organic variation with proportional editing concept
-    bpy.ops.mesh.subdivide(number_cuts=1)
-    bpy.ops.object.mode_set(mode='OBJECT')
-    
-    # Add a cast modifier for more organic curves
-    cast_mod = hull.modifiers.new(name="Cast", type='CAST')
-    cast_mod.factor = 0.3
-    cast_mod.cast_type = 'SPHERE'
-
-
-def apply_mixed_style(hull, scale):
-    """Apply mixed style from all inspirations"""
-    bpy.context.view_layer.objects.active = hull
-    bpy.ops.object.mode_set(mode='EDIT')
-    bpy.ops.mesh.bevel(offset=0.05 * scale, segments=2)
-    bpy.ops.object.mode_set(mode='OBJECT')
 
 
 def apply_solari_style(hull, scale):
@@ -227,25 +169,6 @@ def apply_keldari_style(hull, scale):
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.bevel(offset=0.15 * scale, segments=1)
     bpy.ops.object.mode_set(mode='OBJECT')
-
-
-def apply_nms_style(hull, scale):
-    """Apply No Man's Sky style - colorful, varied, mix of smooth and angular.
-
-    NMS ships combine rounded organic surfaces with sharp mechanical details.
-    The hull gets a moderate cast towards a sphere for that rounded look plus a
-    light bevel to keep panel edges visible.
-    """
-    bpy.context.view_layer.objects.active = hull
-    bpy.ops.object.mode_set(mode='EDIT')
-    bpy.ops.mesh.subdivide(number_cuts=1)
-    bpy.ops.mesh.bevel(offset=0.06 * scale, segments=2)
-    bpy.ops.object.mode_set(mode='OBJECT')
-
-    # Rounded cast for organic NMS silhouette
-    cast_mod = hull.modifiers.new(name="NMS_Cast", type='CAST')
-    cast_mod.factor = 0.2
-    cast_mod.cast_type = 'SPHERE'
 
 
 # ---------------------------------------------------------------------------
@@ -563,7 +486,7 @@ def _apply_hull_vertex_noise(hull, scale, seed, complexity):
     mesh.update()
 
 
-def generate_cockpit(scale=1.0, position=(0, 0, 0), ship_class='FIGHTER', style='MIXED',
+def generate_cockpit(scale=1.0, position=(0, 0, 0), ship_class='FRIGATE', style='SOLARI',
                      naming_prefix=''):
     """
     Generate cockpit/bridge for the ship
@@ -596,7 +519,7 @@ def generate_cockpit(scale=1.0, position=(0, 0, 0), ship_class='FIGHTER', style=
     return cockpit
 
 
-def generate_engines(count=2, scale=1.0, symmetry=True, style='MIXED', naming_prefix=''):
+def generate_engines(count=2, scale=1.0, symmetry=True, style='SOLARI', naming_prefix=''):
     """
     Generate engine units with archetype-based variation.
 
@@ -774,7 +697,7 @@ def _add_inner_cone(engine_obj, engine_size, naming_prefix=''):
     cone.parent = engine_obj
 
 
-def generate_wings(scale=1.0, symmetry=True, style='MIXED', naming_prefix=''):
+def generate_wings(scale=1.0, symmetry=True, style='SOLARI', naming_prefix=''):
     """
     Generate wing structures
     

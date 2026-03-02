@@ -64,8 +64,9 @@ def test_ship_configs():
     from . import ship_generator
     
     expected_classes = [
-        'SHUTTLE', 'FIGHTER', 'CORVETTE', 'FRIGATE', 
-        'DESTROYER', 'CRUISER', 'BATTLESHIP', 'CARRIER', 'CAPITAL'
+        'FRIGATE', 'DESTROYER', 'CRUISER', 'BATTLECRUISER',
+        'BATTLESHIP', 'CARRIER', 'DREADNOUGHT', 'TITAN',
+        'INDUSTRIAL', 'MINING_BARGE', 'EXHUMER'
     ]
     
     for ship_class in expected_classes:

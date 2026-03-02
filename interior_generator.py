@@ -25,7 +25,7 @@ def _prefixed_name(prefix, name):
     return name
 
 
-def generate_interior(ship_class='FIGHTER', scale=1.0, crew_capacity=1, naming_prefix=''):
+def generate_interior(ship_class='FRIGATE', scale=1.0, crew_capacity=1, naming_prefix=''):
     """
     Generate complete interior for a ship
     
@@ -44,11 +44,8 @@ def generate_interior(ship_class='FIGHTER', scale=1.0, crew_capacity=1, naming_p
     collection_name = _prefixed_name(naming_prefix, f"Interior_{ship_class}")
     
     # Determine interior layout based on ship class
-    if ship_class in ['SHUTTLE', 'FIGHTER']:
-        # Small ships: Simple cockpit area
-        interior_objects.extend(generate_cockpit_interior(scale, naming_prefix=naming_prefix))
-    elif ship_class in ['CORVETTE', 'FRIGATE']:
-        # Medium ships: Cockpit + small crew area
+    if ship_class == 'FRIGATE':
+        # Smallest NovaForge class: Cockpit + small crew area
         interior_objects.extend(generate_cockpit_interior(scale, naming_prefix=naming_prefix))
         interior_objects.extend(generate_corridor(scale, length=scale * 0.5, naming_prefix=naming_prefix))
         interior_objects.extend(generate_crew_quarters(scale, bunks=crew_capacity, naming_prefix=naming_prefix))

@@ -127,8 +127,8 @@ def ship_to_generator_params(ship_def):
     race = ship_def.get('race', 'Keldari')
     model = ship_def.get('model_data', {})
 
-    ship_class = CLASS_MAP.get(nf_class, 'FIGHTER')
-    style = RACE_TO_STYLE.get(race, 'MIXED')
+    ship_class = CLASS_MAP.get(nf_class, 'FRIGATE')
+    style = RACE_TO_STYLE.get(race, 'SOLARI')
 
     seed = model.get('generation_seed', 1)
     turrets = model.get('turret_hardpoints', 0)

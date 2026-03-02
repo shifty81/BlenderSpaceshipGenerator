@@ -1144,7 +1144,7 @@ def test_power_system():
 
     # Edge case: no reactor — systems should disable when cap drains
     no_reactor_dna = {
-        'class': 'FIGHTER',
+        'class': 'FRIGATE',
         'bricks': [
             {'type': 'STRUCTURAL_SPINE', 'pos': [0, 0, 0]},
             {'type': 'SHIELD_EMITTER', 'pos': [1, 0, 0]},

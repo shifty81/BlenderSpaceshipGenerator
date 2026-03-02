@@ -28,9 +28,6 @@ LOD_LEVELS = {
 # Switch-distances (metres) per ship class.  Larger vessels stay visible at
 # greater range so their thresholds are proportionally bigger.
 LOD_DISTANCES = {
-    'SHUTTLE':        [0,  50,  150,   500],
-    'FIGHTER':        [0,  75,  200,   600],
-    'CORVETTE':       [0, 100,  300,   900],
     'FRIGATE':        [0, 150,  450,  1200],
     'DESTROYER':      [0, 200,  600,  1800],
     'CRUISER':        [0, 250,  800,  2500],
@@ -38,14 +35,10 @@ LOD_DISTANCES = {
     'BATTLESHIP':     [0, 350, 1200,  4000],
     'CARRIER':        [0, 400, 1500,  5000],
     'DREADNOUGHT':    [0, 450, 1800,  6000],
-    'CAPITAL':        [0, 475, 1900,  7000],
     'TITAN':          [0, 500, 2000,  8000],
     'INDUSTRIAL':     [0, 150,  450,  1200],
     'MINING_BARGE':   [0, 120,  350,  1000],
     'EXHUMER':        [0, 140,  420,  1100],
-    'EXPLORER':       [0,  80,  250,   700],
-    'HAULER':         [0, 160,  480,  1300],
-    'EXOTIC':         [0,  90,  270,   800],
 }
 
 
@@ -63,7 +56,7 @@ def _prefixed_name(prefix, name):
 def get_lod_distances(ship_class):
     """Return the list of LOD switch-distances for *ship_class*.
 
-    Falls back to FIGHTER distances when the class is not recognised.
+    Falls back to FRIGATE distances when the class is not recognised.
 
     Args:
         ship_class: Ship class key (e.g. ``'CRUISER'``).
@@ -71,7 +64,7 @@ def get_lod_distances(ship_class):
     Returns:
         list[float]: Four distance values, one per LOD level.
     """
-    return LOD_DISTANCES.get(ship_class, LOD_DISTANCES['FIGHTER'])
+    return LOD_DISTANCES.get(ship_class, LOD_DISTANCES['FRIGATE'])
 
 
 def apply_decimate(obj, ratio):
@@ -93,7 +86,7 @@ def apply_decimate(obj, ratio):
 # Main entry point
 # ---------------------------------------------------------------------------
 
-def generate_lods(hull_obj, ship_class='FIGHTER', naming_prefix=''):
+def generate_lods(hull_obj, ship_class='FRIGATE', naming_prefix=''):
     """Generate LOD meshes for a hull object.
 
     Duplicates *hull_obj* for each reduced LOD level (LOD1-LOD3), applies a

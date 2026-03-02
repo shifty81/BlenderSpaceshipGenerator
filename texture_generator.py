@@ -1,35 +1,15 @@
 """
-Procedural texture generation module
-Creates PBR materials using Blender's shader node system
-Supports hull plating, glow effects, weathering, and faction-specific color palettes
+Procedural texture generation module for the NovaForge content pipeline.
+Creates PBR materials using Blender's shader node system.
+Supports hull plating, glow effects, weathering, and NovaForge faction color palettes.
 """
 
 import bpy
 import random
 
 
-# Color palettes for different styles
+# Color palettes for NovaForge factions
 COLOR_PALETTES = {
-    'MIXED': {
-        'primary': (0.4, 0.4, 0.45, 1.0),
-        'secondary': (0.3, 0.3, 0.35, 1.0),
-        'accent': (0.2, 0.5, 1.0, 1.0),
-    },
-    'X4': {
-        'primary': (0.35, 0.38, 0.4, 1.0),
-        'secondary': (0.25, 0.28, 0.3, 1.0),
-        'accent': (0.9, 0.6, 0.1, 1.0),
-    },
-    'ELITE': {
-        'primary': (0.5, 0.5, 0.52, 1.0),
-        'secondary': (0.3, 0.3, 0.32, 1.0),
-        'accent': (0.1, 0.7, 0.9, 1.0),
-    },
-    'EVE': {
-        'primary': (0.45, 0.42, 0.4, 1.0),
-        'secondary': (0.35, 0.32, 0.3, 1.0),
-        'accent': (0.6, 0.2, 0.2, 1.0),
-    },
     'SOLARI': {
         'primary': (0.8, 0.65, 0.2, 1.0),
         'secondary': (0.6, 0.45, 0.15, 1.0),
@@ -50,37 +30,15 @@ COLOR_PALETTES = {
         'secondary': (0.35, 0.25, 0.15, 1.0),
         'accent': (0.9, 0.5, 0.1, 1.0),
     },
-    'NMS': {
-        'primary': (0.7, 0.15, 0.1, 1.0),
-        'secondary': (0.9, 0.85, 0.75, 1.0),
-        'accent': (0.1, 0.8, 0.6, 1.0),
-    },
 }
-
-# NMS has a pool of vibrant color sets chosen per-seed
-NMS_COLOR_SETS = [
-    {'primary': (0.7, 0.15, 0.1, 1.0), 'secondary': (0.9, 0.85, 0.75, 1.0), 'accent': (0.1, 0.8, 0.6, 1.0)},
-    {'primary': (0.1, 0.35, 0.7, 1.0), 'secondary': (0.85, 0.85, 0.9, 1.0), 'accent': (0.9, 0.7, 0.1, 1.0)},
-    {'primary': (0.15, 0.6, 0.3, 1.0), 'secondary': (0.2, 0.2, 0.25, 1.0), 'accent': (0.9, 0.2, 0.4, 1.0)},
-    {'primary': (0.85, 0.6, 0.1, 1.0), 'secondary': (0.3, 0.3, 0.35, 1.0), 'accent': (0.2, 0.6, 0.9, 1.0)},
-    {'primary': (0.6, 0.1, 0.5, 1.0), 'secondary': (0.9, 0.9, 0.85, 1.0), 'accent': (0.2, 0.9, 0.3, 1.0)},
-    {'primary': (0.9, 0.9, 0.9, 1.0), 'secondary': (0.15, 0.15, 0.2, 1.0), 'accent': (0.9, 0.3, 0.1, 1.0)},
-]
 
 
 def get_palette(style, seed=0):
-    """Return the color palette for the given style.
-
-    For the NMS style a random set is chosen from *NMS_COLOR_SETS* based on
-    the seed so that each generated ship gets a unique but consistent scheme.
-    """
-    if style == 'NMS':
-        random.seed(seed)
-        return random.choice(NMS_COLOR_SETS)
-    return COLOR_PALETTES.get(style, COLOR_PALETTES['MIXED'])
+    """Return the color palette for the given NovaForge faction style."""
+    return COLOR_PALETTES.get(style, COLOR_PALETTES['SOLARI'])
 
 
-def generate_hull_material(style='MIXED', seed=0, weathering=0.0):
+def generate_hull_material(style='SOLARI', seed=0, weathering=0.0):
     """
     Generate a procedural hull material using Blender's shader nodes.
 
@@ -157,7 +115,7 @@ def generate_hull_material(style='MIXED', seed=0, weathering=0.0):
     return mat
 
 
-def generate_accent_material(style='MIXED', seed=0):
+def generate_accent_material(style='SOLARI', seed=0):
     """
     Generate an accent/trim material with emissive glow for details.
 
@@ -197,7 +155,7 @@ def generate_accent_material(style='MIXED', seed=0):
     return mat
 
 
-def generate_engine_material(style='MIXED', seed=0):
+def generate_engine_material(style='SOLARI', seed=0):
     """
     Generate an engine glow material.
 
@@ -277,7 +235,7 @@ def _apply_weathering(material, amount):
     links.new(rough_add.outputs['Value'], principled.inputs['Roughness'])
 
 
-def apply_textures_to_ship(ship_object, style='MIXED', seed=0,
+def apply_textures_to_ship(ship_object, style='SOLARI', seed=0,
                            weathering=0.0):
     """
     Apply procedural textures to all parts of a ship hierarchy.
@@ -343,7 +301,7 @@ def apply_textures_to_ship(ship_object, style='MIXED', seed=0,
         _assign(child)
 
 
-def generate_normal_material(style='MIXED', seed=0):
+def generate_normal_material(style='SOLARI', seed=0):
     """Generate a material with procedural normal map detail.
 
     Creates hull panel lines and rivet patterns via bump nodes that
@@ -409,7 +367,7 @@ def generate_normal_material(style='MIXED', seed=0):
     return mat
 
 
-def generate_glow_material(style='MIXED', seed=0):
+def generate_glow_material(style='SOLARI', seed=0):
     """Generate a glow/emissive material for engine exhausts and running lights.
 
     Args:
@@ -439,7 +397,7 @@ def generate_glow_material(style='MIXED', seed=0):
     return mat
 
 
-def generate_dirt_material(style='MIXED', seed=0, intensity=0.5):
+def generate_dirt_material(style='SOLARI', seed=0, intensity=0.5):
     """Generate a dirt/grime overlay material.
 
     Uses procedural noise to simulate accumulated dirt, oil stains, and

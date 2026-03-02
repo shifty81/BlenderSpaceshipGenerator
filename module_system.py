@@ -50,7 +50,7 @@ def _prefixed_name(prefix, name):
     return name
 
 
-def generate_modules(count=2, scale=1.0, ship_class='FIGHTER', naming_prefix=''):
+def generate_modules(count=2, scale=1.0, ship_class='FRIGATE', naming_prefix=''):
     """
     Generate module attachments for the ship
     
@@ -89,11 +89,8 @@ def get_available_modules(ship_class):
     Returns:
         List of module type keys
     """
-    if ship_class in ['SHUTTLE', 'FIGHTER']:
-        # Small ships: Limited modules
-        return ['WEAPON', 'SHIELD', 'SENSOR']
-    elif ship_class in ['CORVETTE', 'FRIGATE']:
-        # Medium ships: More variety
+    if ship_class == 'FRIGATE':
+        # Smallest NovaForge class: Limited modules
         return ['CARGO', 'WEAPON', 'SHIELD', 'SENSOR', 'POWER']
     else:
         # Large ships: All modules

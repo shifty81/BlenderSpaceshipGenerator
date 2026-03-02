@@ -62,7 +62,7 @@ def parse_ship_config(ship_data):
     race = ship_data.get('race', '')
 
     ship_class = EVEOFFLINE_CLASS_MAP.get(ship_class_name, 'FRIGATE')
-    style = FACTION_STYLE_MAP.get(race, 'MIXED')
+    style = FACTION_STYLE_MAP.get(race, 'SOLARI')
     seed = model.get('generation_seed', 1)
 
     turrets = model.get('turret_hardpoints', 0)

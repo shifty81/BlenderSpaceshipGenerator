@@ -37,9 +37,6 @@ POWER_CONSUMPTION = {
 
 # Default capacitor size per ship class (MJ)
 CAPACITOR_SIZE = {
-    'SHUTTLE': 200.0,
-    'FIGHTER': 400.0,
-    'CORVETTE': 800.0,
     'FRIGATE': 1200.0,
     'DESTROYER': 2000.0,
     'CRUISER': 3500.0,
@@ -47,14 +44,10 @@ CAPACITOR_SIZE = {
     'BATTLESHIP': 6000.0,
     'CARRIER': 8000.0,
     'DREADNOUGHT': 10000.0,
-    'CAPITAL': 12000.0,
     'TITAN': 20000.0,
     'INDUSTRIAL': 1000.0,
     'MINING_BARGE': 600.0,
     'EXHUMER': 900.0,
-    'EXPLORER': 500.0,
-    'HAULER': 800.0,
-    'EXOTIC': 600.0,
 }
 
 # Non-essential system types that are disabled when capacitor is empty

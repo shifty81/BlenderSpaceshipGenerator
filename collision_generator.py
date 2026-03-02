@@ -30,9 +30,6 @@ COLLISION_TYPES = {
 # Smaller ships use a single convex hull; medium ships do as well.
 # Large ships use multi-convex decomposition for better accuracy.
 DEFAULT_COLLISION_TYPE = {
-    'SHUTTLE':       'CONVEX_HULL',
-    'FIGHTER':       'CONVEX_HULL',
-    'CORVETTE':      'CONVEX_HULL',
     'FRIGATE':       'CONVEX_HULL',
     'DESTROYER':     'CONVEX_HULL',
     'CRUISER':       'CONVEX_HULL',
@@ -40,14 +37,10 @@ DEFAULT_COLLISION_TYPE = {
     'BATTLESHIP':    'MULTI_CONVEX',
     'CARRIER':       'MULTI_CONVEX',
     'DREADNOUGHT':   'MULTI_CONVEX',
-    'CAPITAL':       'MULTI_CONVEX',
     'TITAN':         'MULTI_CONVEX',
     'INDUSTRIAL':    'CONVEX_HULL',
     'MINING_BARGE':  'CONVEX_HULL',
     'EXHUMER':       'CONVEX_HULL',
-    'EXPLORER':      'CONVEX_HULL',
-    'HAULER':        'CONVEX_HULL',
-    'EXOTIC':        'CONVEX_HULL',
 }
 
 # Number of convex parts for MULTI_CONVEX, keyed by scale thresholds.
@@ -65,15 +58,12 @@ _CONVEX_REMESH_DEPTH = 3
 
 # Ship scales (mirrored from ship_generator.SHIP_CONFIGS for look-up).
 _SHIP_SCALES = {
-    'SHUTTLE': 1.0,      'FIGHTER': 1.5,
-    'CORVETTE': 3.0,     'FRIGATE': 5.0,
-    'DESTROYER': 8.0,    'CRUISER': 12.0,
-    'BATTLECRUISER': 15.0, 'BATTLESHIP': 18.0,
-    'CARRIER': 25.0,     'DREADNOUGHT': 30.0,
-    'CAPITAL': 35.0,     'TITAN': 50.0,
+    'FRIGATE': 5.0,      'DESTROYER': 8.0,
+    'CRUISER': 12.0,     'BATTLECRUISER': 15.0,
+    'BATTLESHIP': 18.0,  'CARRIER': 25.0,
+    'DREADNOUGHT': 30.0, 'TITAN': 50.0,
     'INDUSTRIAL': 6.0,   'MINING_BARGE': 4.0,
-    'EXHUMER': 5.0,      'EXPLORER': 2.0,
-    'HAULER': 5.5,       'EXOTIC': 2.5,
+    'EXHUMER': 5.0,
 }
 
 
@@ -313,7 +303,7 @@ def _generate_multi_convex(hull_obj, naming_prefix='', num_parts=2):
 # ---------------------------------------------------------------------------
 
 def generate_collision_mesh(hull_obj, collision_type=None,
-                            ship_class='FIGHTER', naming_prefix=''):
+                            ship_class='FRIGATE', naming_prefix=''):
     """Generate a simplified collision mesh for *hull_obj*.
 
     Parameters
@@ -324,7 +314,7 @@ def generate_collision_mesh(hull_obj, collision_type=None,
         One of the keys in :data:`COLLISION_TYPES`.  When ``None`` the
         default for *ship_class* is used.
     ship_class : str
-        Ship class key (e.g. ``'FIGHTER'``, ``'TITAN'``).
+        Ship class key (e.g. ``'FRIGATE'``, ``'TITAN'``).
     naming_prefix : str
         Optional prefix prepended to generated object names.
 
