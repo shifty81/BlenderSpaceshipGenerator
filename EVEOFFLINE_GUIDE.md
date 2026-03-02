@@ -288,7 +288,8 @@ import sys
 # Add the addon directory to the path if needed
 # sys.path.append('/path/to/AtlasForgeGenerator')
 
-from AtlasForgeGenerator import ship_generator, atlas_exporter
+# Note: Replace with actual module path if different
+from . import ship_generator, atlas_exporter
 
 # === CONFIGURATION ===
 PROJECT_DIR = '/path/to/your/project'

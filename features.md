@@ -502,7 +502,7 @@ A batch script can generate all ships headlessly:
 blender --background --python batch_generate.py
 ```
 
-> **Full integration guide →** [PROJECT_GUIDE.md](EVEOFFLINE_GUIDE.md)
+> **Full integration guide →** [EVEOFFLINE_GUIDE.md](EVEOFFLINE_GUIDE.md)
 >
 > **Engine data formats →** [ENGINE_INTEGRATION.md](ENGINE_INTEGRATION.md)
 

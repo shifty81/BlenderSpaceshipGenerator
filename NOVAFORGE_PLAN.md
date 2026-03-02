@@ -358,7 +358,7 @@ AtlasForgeGenerator/
 ├── station_generator.py          # (existing) station generation
 ├── asteroid_generator.py         # (existing) asteroid belts
 ├── texture_generator.py          # (existing) procedural PBR materials
-├── project_importer.py           # (existing) project JSON import
+├── novaforge_importer.py         # (existing) project JSON import
 ├── render_setup.py               # (existing) catalog render setup
 ├── lod_generator.py              # (existing) LOD generation
 ├── collision_generator.py        # (existing) collision meshes
@@ -390,9 +390,9 @@ AtlasForgeGenerator/
 ├── EXAMPLES.md
 ├── TECHNICAL.md
 ├── ENGINE_INTEGRATION.md
-├── PROJECT_GUIDE.md
+├── EVEOFFLINE_GUIDE.md
 ├── IMPLEMENTATION_SUMMARY.md
-├── ATLASFORGE_PLAN.md            # This file
+├── NOVAFORGE_PLAN.md             # This file
 ├── features.md
 ├── latest.txt                    # Original design discussion
 ├── test_validation.py

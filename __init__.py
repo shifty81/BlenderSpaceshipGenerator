@@ -1,7 +1,7 @@
 """
 AtlasForge Generator — Blender Addon
 Procedural content generation (PCG) tool for spaceships, stations, and asteroids.
-Engine-based asset generation pipeline designed for integration into multiple projects.
+Engine-agnostic asset generation pipeline designed for integration into multiple projects.
 """
 
 bl_info = {
