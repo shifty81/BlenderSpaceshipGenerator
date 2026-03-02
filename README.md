@@ -18,6 +18,8 @@ This addon is the primary tool for generating and refining all 3D assets used by
 
 **→ [Feature Specification](features.md)** — complete feature list, design rules, and implementation status.
 
+**→ [NovaForge Implementation Plan](NOVAFORGE_PLAN.md)** — phased roadmap for evolving this addon into a full PCG pipeline (galaxy, systems, planets, stations, ships, characters) with C++ integration, ECS architecture, multiplayer sync, and environmental simulation.
+
 ## Features
 
 - **Multiple Ship Classes**: Generate ships from small shuttles to massive titans

@@ -23,7 +23,9 @@ BlenderSpaceshipGenerator/
 ├── ENGINE_INTEGRATION.md    # Engine-facing data reference (for Atlas/EVEOFFLINE)
 ├── features.md              # Feature specification and design rules
 ├── EVEOFFLINE_GUIDE.md      # Start-to-finish EVEOFFLINE integration guide
-└── IMPLEMENTATION_SUMMARY.md # Implementation overview
+├── IMPLEMENTATION_SUMMARY.md # Implementation overview
+├── NOVAFORGE_PLAN.md        # Phased roadmap for full NovaForge PCG pipeline
+└── latest.txt               # Original design discussion (reference material)
 ```
 
 ## Module Descriptions
