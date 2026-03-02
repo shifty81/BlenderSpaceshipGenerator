@@ -28,6 +28,9 @@ LOD_LEVELS = {
 # Switch-distances (metres) per ship class.  Larger vessels stay visible at
 # greater range so their thresholds are proportionally bigger.
 LOD_DISTANCES = {
+    'SHUTTLE':        [0, 100,  300,   800],
+    'FIGHTER':        [0, 110,  330,   900],
+    'CORVETTE':       [0, 130,  400,  1000],
     'FRIGATE':        [0, 150,  450,  1200],
     'DESTROYER':      [0, 200,  600,  1800],
     'CRUISER':        [0, 250,  800,  2500],
@@ -35,10 +38,14 @@ LOD_DISTANCES = {
     'BATTLESHIP':     [0, 350, 1200,  4000],
     'CARRIER':        [0, 400, 1500,  5000],
     'DREADNOUGHT':    [0, 450, 1800,  6000],
+    'CAPITAL':        [0, 480, 1900,  7000],
     'TITAN':          [0, 500, 2000,  8000],
     'INDUSTRIAL':     [0, 150,  450,  1200],
     'MINING_BARGE':   [0, 120,  350,  1000],
     'EXHUMER':        [0, 140,  420,  1100],
+    'EXPLORER':       [0, 110,  330,   900],
+    'HAULER':         [0, 150,  450,  1200],
+    'EXOTIC':         [0, 120,  360,   950],
 }
 
 

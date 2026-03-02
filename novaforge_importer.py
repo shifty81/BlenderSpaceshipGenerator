@@ -40,6 +40,9 @@ RACE_TO_STYLE = {
 # ---------------------------------------------------------------------------
 
 CLASS_MAP = {
+    'Shuttle':        'SHUTTLE',
+    'Fighter':        'FIGHTER',
+    'Corvette':       'CORVETTE',
     'Frigate':        'FRIGATE',
     'Destroyer':      'DESTROYER',
     'Cruiser':        'CRUISER',
@@ -47,10 +50,14 @@ CLASS_MAP = {
     'Battleship':     'BATTLESHIP',
     'Carrier':        'CARRIER',
     'Dreadnought':    'DREADNOUGHT',
+    'Capital':        'CAPITAL',
     'Titan':          'TITAN',
     'Industrial':     'INDUSTRIAL',
     'Mining Barge':   'MINING_BARGE',
     'Exhumer':        'EXHUMER',
+    'Explorer':       'EXPLORER',
+    'Hauler':         'HAULER',
+    'Exotic':         'EXOTIC',
 }
 
 # ---------------------------------------------------------------------------
@@ -59,6 +66,9 @@ CLASS_MAP = {
 # ---------------------------------------------------------------------------
 
 NOVAFORGE_SCALES = {
+    'Shuttle':        {'length': 1.0, 'width': 0.5, 'height': 0.4},
+    'Fighter':        {'length': 1.5, 'width': 0.6, 'height': 0.4},
+    'Corvette':       {'length': 2.5, 'width': 0.7, 'height': 0.5},
     'Frigate':        {'length': 3.5, 'width': 0.9, 'height': 0.7},
     'Destroyer':      {'length': 5.0, 'width': 0.7, 'height': 0.6},
     'Cruiser':        {'length': 6.0, 'width': 1.8, 'height': 1.5},
@@ -66,10 +76,14 @@ NOVAFORGE_SCALES = {
     'Battleship':     {'length': 12.0, 'width': 3.5, 'height': 3.0},
     'Carrier':        {'length': 15.0, 'width': 6.0, 'height': 4.0},
     'Dreadnought':    {'length': 12.0, 'width': 4.5, 'height': 5.0},
+    'Capital':        {'length': 18.0, 'width': 5.0, 'height': 4.5},
     'Titan':          {'length': 25.0, 'width': 8.0, 'height': 7.0},
     'Mining Barge':   {'length': 6.0, 'width': 3.0, 'height': 2.0},
     'Industrial':     {'length': 6.0, 'width': 2.5, 'height': 2.0},
     'Exhumer':        {'length': 5.0, 'width': 2.5, 'height': 1.8},
+    'Explorer':       {'length': 2.0, 'width': 0.6, 'height': 0.4},
+    'Hauler':         {'length': 5.5, 'width': 2.0, 'height': 1.8},
+    'Exotic':         {'length': 2.5, 'width': 0.8, 'height': 0.5},
 }
 
 

@@ -28,6 +28,33 @@ MAX_TURRET_HARDPOINTS = 10
 
 # Ship class configurations (NovaForge classes only)
 SHIP_CONFIGS = {
+    'SHUTTLE': {
+        'scale': 1.0,
+        'hull_segments': 3,
+        'engines': 2,
+        'weapons': 0,
+        'turret_hardpoints': 0,
+        'wings': False,
+        'crew_capacity': 2,
+    },
+    'FIGHTER': {
+        'scale': 1.5,
+        'hull_segments': 4,
+        'engines': 2,
+        'weapons': 2,
+        'turret_hardpoints': 1,
+        'wings': True,
+        'crew_capacity': 1,
+    },
+    'CORVETTE': {
+        'scale': 3.0,
+        'hull_segments': 5,
+        'engines': 3,
+        'weapons': 4,
+        'turret_hardpoints': 2,
+        'wings': True,
+        'crew_capacity': 4,
+    },
     'FRIGATE': {
         'scale': 5.0,
         'hull_segments': 6,
@@ -126,6 +153,42 @@ SHIP_CONFIGS = {
         'turret_hardpoints': 0,
         'wings': False,
         'crew_capacity': 4,
+    },
+    'CAPITAL': {
+        'scale': 35.0,
+        'hull_segments': 15,
+        'engines': 12,
+        'weapons': 20,
+        'turret_hardpoints': 10,
+        'wings': False,
+        'crew_capacity': 500,
+    },
+    'EXPLORER': {
+        'scale': 2.0,
+        'hull_segments': 5,
+        'engines': 2,
+        'weapons': 1,
+        'turret_hardpoints': 1,
+        'wings': True,
+        'crew_capacity': 1,
+    },
+    'HAULER': {
+        'scale': 5.5,
+        'hull_segments': 6,
+        'engines': 4,
+        'weapons': 0,
+        'turret_hardpoints': 0,
+        'wings': False,
+        'crew_capacity': 2,
+    },
+    'EXOTIC': {
+        'scale': 2.5,
+        'hull_segments': 7,
+        'engines': 2,
+        'weapons': 2,
+        'turret_hardpoints': 1,
+        'wings': True,
+        'crew_capacity': 1,
     },
 }
 

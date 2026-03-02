@@ -27,6 +27,9 @@ MAX_TURRET_HARDPOINTS = 10
 # ship scale so every class gets a distinctive silhouette.
 
 HULL_PROFILES = {
+    'SHUTTLE':       (0.30, 0.90, 0.25),
+    'FIGHTER':       (0.30, 1.40, 0.22),
+    'CORVETTE':      (0.35, 1.30, 0.26),
     'FRIGATE':       (0.40, 1.20, 0.28),
     'DESTROYER':     (0.45, 1.30, 0.30),
     'CRUISER':       (0.50, 1.20, 0.32),
@@ -34,10 +37,14 @@ HULL_PROFILES = {
     'BATTLESHIP':    (0.60, 1.10, 0.38),
     'CARRIER':       (0.80, 1.00, 0.25),
     'DREADNOUGHT':   (0.55, 1.30, 0.40),
+    'CAPITAL':       (0.65, 1.20, 0.38),
     'TITAN':         (0.60, 1.40, 0.35),
     'INDUSTRIAL':    (0.60, 0.90, 0.50),
     'MINING_BARGE':  (0.70, 0.80, 0.45),
     'EXHUMER':       (0.65, 0.90, 0.40),
+    'EXPLORER':      (0.30, 1.30, 0.24),
+    'HAULER':        (0.65, 0.85, 0.48),
+    'EXOTIC':        (0.35, 1.50, 0.22),
 }
 
 # Default profile when ship_class is unknown

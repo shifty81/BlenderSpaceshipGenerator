@@ -233,6 +233,9 @@ SCALE_BANDS = {
 # ---------------------------------------------------------------------------
 
 GRID_SIZES = {
+    'SHUTTLE': 0.5,
+    'FIGHTER': 1.0,
+    'CORVETTE': 1.0,
     'FRIGATE': 1.0,
     'DESTROYER': 1.5,
     'CRUISER': 2.0,
@@ -240,10 +243,14 @@ GRID_SIZES = {
     'BATTLESHIP': 3.0,
     'CARRIER': 4.0,
     'DREADNOUGHT': 4.0,
+    'CAPITAL': 6.0,
     'TITAN': 8.0,
     'INDUSTRIAL': 1.5,
     'MINING_BARGE': 1.0,
     'EXHUMER': 1.5,
+    'EXPLORER': 1.0,
+    'HAULER': 1.5,
+    'EXOTIC': 1.0,
 }
 
 # ---------------------------------------------------------------------------

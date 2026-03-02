@@ -30,6 +30,9 @@ COLLISION_TYPES = {
 # Smaller ships use a single convex hull; medium ships do as well.
 # Large ships use multi-convex decomposition for better accuracy.
 DEFAULT_COLLISION_TYPE = {
+    'SHUTTLE':       'BOX',
+    'FIGHTER':       'CONVEX_HULL',
+    'CORVETTE':      'CONVEX_HULL',
     'FRIGATE':       'CONVEX_HULL',
     'DESTROYER':     'CONVEX_HULL',
     'CRUISER':       'CONVEX_HULL',
@@ -37,10 +40,14 @@ DEFAULT_COLLISION_TYPE = {
     'BATTLESHIP':    'MULTI_CONVEX',
     'CARRIER':       'MULTI_CONVEX',
     'DREADNOUGHT':   'MULTI_CONVEX',
+    'CAPITAL':       'MULTI_CONVEX',
     'TITAN':         'MULTI_CONVEX',
     'INDUSTRIAL':    'CONVEX_HULL',
     'MINING_BARGE':  'CONVEX_HULL',
     'EXHUMER':       'CONVEX_HULL',
+    'EXPLORER':      'CONVEX_HULL',
+    'HAULER':        'CONVEX_HULL',
+    'EXOTIC':        'CONVEX_HULL',
 }
 
 # Number of convex parts for MULTI_CONVEX, keyed by scale thresholds.

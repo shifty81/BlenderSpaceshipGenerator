@@ -49,6 +49,9 @@ class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
         name="Ship Class",
         description="NovaForge ship class to generate",
         items=[
+            ('SHUTTLE', "Shuttle", "Small transport ship"),
+            ('FIGHTER', "Fighter", "Single-seat combat ship"),
+            ('CORVETTE', "Corvette", "Small multi-crew ship"),
             ('FRIGATE', "Frigate", "Fast combat/utility ship"),
             ('DESTROYER', "Destroyer", "Heavy combat ship"),
             ('CRUISER', "Cruiser", "Large multi-role ship"),
@@ -56,10 +59,14 @@ class SpaceshipGeneratorProperties(bpy.types.PropertyGroup):
             ('BATTLESHIP', "Battleship", "Heavy capital ship"),
             ('CARRIER', "Carrier", "Fleet carrier ship"),
             ('DREADNOUGHT', "Dreadnought", "Siege capital ship"),
+            ('CAPITAL', "Capital", "Largest standard capital ship"),
             ('TITAN', "Titan", "Supercapital flagship"),
             ('INDUSTRIAL', "Industrial", "Cargo hauler"),
             ('MINING_BARGE', "Mining Barge", "Mining vessel"),
             ('EXHUMER', "Exhumer", "Advanced mining vessel"),
+            ('EXPLORER', "Explorer", "Long-range exploration ship"),
+            ('HAULER', "Hauler", "Dedicated freight transport"),
+            ('EXOTIC', "Exotic", "Unique experimental ship"),
         ],
         default='FRIGATE'
     )
